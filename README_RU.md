@@ -322,3 +322,32 @@ font-weight:bold;
 
 </body>
 </html>
+
+
+<div style="display: flex; gap: 20px;">
+
+<div style="flex: 1;">
+
+## Левый столбец
+
+Текст статьи...
+
+$$
+y = ax + b
+$$
+
+</div>
+
+<div style="flex: 1;">
+
+## Правый столбец
+
+Продолжение статьи...
+
+$$
+\sum_{i=1}^{n} x_i
+$$
+
+</div>
+
+</div>
