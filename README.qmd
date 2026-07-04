@@ -1,3 +1,0 @@
-$$
-SFLXGB = \text{Seasonal Forecast Lag eXtreme Gradient Boosting}
-$$
