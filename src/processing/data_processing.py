@@ -1,19 +1,15 @@
 import os
 import math as m
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-import random
-import os
-import matplotlib.pyplot as plt
-
-import os
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 from matplotlib.ticker import AutoMinorLocator
+import tensorflow as tf
+
 
 dpi=300
 
@@ -34,46 +30,6 @@ def assign_interval(df, intervals):
         df.iloc[start:end, df.columns.get_loc("interval")] = k
 
     return df
-
-
-import random
-
-# def AIM_split_number(n, gap_classes):
-#     min_a = min(a for a, b in gap_classes)
-#
-#     def get_options(rem, allow_overflow):
-#         options = []
-#         for a, b in gap_classes:
-#             lo = a
-#             hi = b if allow_overflow else min(b, rem)
-#             if lo <= hi:
-#                 options.append((lo, hi))
-#         return options
-#
-#     result = []
-#     rem = n
-#     first = True
-#
-#     while rem > 0:
-#         options = get_options(rem, first)
-#
-#         safe = []
-#
-#         for lo, hi in options:
-#             for x in range(lo, hi + 1):
-#                 if first:
-#                     if rem - x == 0 or rem - x >= 0:
-#                         safe.append(x)
-#                 else:
-#                     if rem - x == 0 or rem - x >= min_a:
-#                         safe.append(x)
-#
-#         x = random.choice(safe)
-#         result.append(x)
-#         rem -= x
-#         first = False
-#
-#     return result
 
 
 def AIM_split_number(n, gap_classes):
@@ -205,8 +161,6 @@ def AIM_create_test_nan(initial_df, test_start_date, percent_gaps, col_time, tar
 
     len_deleted_list = AIM_split_number(n=len_deleted, gap_classes=gap_classes)
 
-    print(f"len_deleted_list = {sum(len_deleted_list)}")
-    print(f"len_deleted_list = {len_deleted_list}")
 
     intervals_to_drop = generate_segments(n=len(df_test_drop), len_deleted_list=len_deleted_list)
     # intervals_to_drop = generate_gap_lengths(len_deleted=len_deleted, gap_classes=gap_classes)
@@ -231,7 +185,6 @@ def AIM_create_test_nan(initial_df, test_start_date, percent_gaps, col_time, tar
         df_test.iloc[start:end+1, df_test.columns.get_loc('gap_classes')] = cls
 
     unique_classes = sorted([x for x in df_test['gap_classes'].unique() if x is not None])
-    print(f"unique class = {unique_classes}")
     df_orig['is_droped'] = df_test['is_droped']
     df_orig['gap_classes'] = df_test['gap_classes']
 
@@ -451,8 +404,6 @@ def plot_interval_distribution(
     data = df_only_gaps["P_l"]
 
     fig, ax = plt.subplots(1, 1, figsize=(14, 9), dpi=dpi)
-
-    print(intervals)
 
     n, bins, patches = ax.hist(
         data,
@@ -991,15 +942,6 @@ def add_additional_features(df):
     df['day_of_week_cos'] = np.cos(2 * np.pi * df['day_of_week'] / 7)
     df['week_sin'] = np.sin(2 * np.pi * df['week'] / 52)
     df['week_cos'] = np.cos(2 * np.pi * df['week'] / 52)
-
-    # Получаем список праздников
-    it_holidays = holidays.Italy(years=df['year'].unique().tolist())
-    # Создаем список дат праздников в формате datetime.date
-    holiday_dates = [date for date in it_holidays.keys()]
-
-    # Проверяем на принадлежность к праздникам, используя преобразованный список дат
-    df['is_holiday'] = df.index.normalize().isin(holiday_dates).astype(int)
-
     return df
 
 
@@ -1077,17 +1019,9 @@ def get_gap_classes(df: pd.DataFrame, col_target: str):
 
     gap_classes = merge_singletons(gap_classes=gap_classes)
 
-    print(f"gap_classes merge_singletons = {gap_classes}")
-
-    # gap_classes = build_gap_pairs(gap_classes)
-
     if gap_classes[-1][0] == gap_classes[-1][1]:
         gap_classes[-2][1] = gap_classes[-1][0]
         gap_classes.remove(gap_classes[-1])
-
-    print(f"gap_classes = {gap_classes}")
-
-
 
     return gap_classes
 
@@ -1209,9 +1143,6 @@ def plot_metrics_by_interval(
         path_to_save,
         gap_prc,
 ):
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
 
     plt.rcParams["font.family"] = "DejaVu Sans"
 
@@ -1365,27 +1296,366 @@ def get_lag_vector(values, i, lag):
     return window.astype(np.float32)
 
 
-def hdirt_fallback(values, i, window_years):
-    data = []
-    target = []
-
+def hdirt_fallback(df, values, i, window_years, k=5):
     n = len(values)
 
-    for k in range(1, window_years + 1):
-        j = i - k
-        if j >= 0 and not np.isnan(values[j]):
-            data.append(-k)
-            target.append(values[j])
-            break
+    temp_df = df.copy()
+    temp_df["__value__"] = values
 
-    for k in range(1, window_years + 1):
-        j = i + k
-        if j < n and not np.isnan(values[j]):
-            data.append(k)
-            target.append(values[j])
-            break
+    base = temp_df.iloc[i]
 
-    if len(data) < 2:
+    candidates = []
+
+    start = max(0, i - window_years * 365)
+    end = min(n, i + window_years * 365 + 1)
+
+    for j in range(start, end):
+        if j == i:
+            continue
+        if np.isnan(values[j]):
+            continue
+
+        row = temp_df.iloc[j]
+
+        dist = 0.0
+        dist += (base["hour_sin"] - row["hour_sin"]) ** 2
+        dist += (base["hour_cos"] - row["hour_cos"]) ** 2
+        dist += (base["day_of_week_sin"] - row["day_of_week_sin"]) ** 2
+        dist += (base["day_of_week_cos"] - row["day_of_week_cos"]) ** 2
+        dist += (base["week_sin"] - row["week_sin"]) ** 2
+        dist += (base["week_cos"] - row["week_cos"]) ** 2
+
+        dist += ((base["year"] - row["year"]) / 10.0) ** 2
+
+        candidates.append((dist, values[j]))
+
+    if len(candidates) == 0:
         return None
 
+    candidates.sort(key=lambda x: x[0])
+    top = candidates[:k]
+
+    weights = np.array([1 / (d + 1e-6) for d, _ in top])
+    vals = np.array([v for _, v in top])
+
+    return float(np.sum(weights * vals) / np.sum(weights))
+
+
     return float(np.mean(target))
+
+
+def compute_imputation_metrics(
+        df_imputed,
+        df_orig,
+        col_target,
+        col_prefix,
+        metrics_func,
+):
+
+    pred_col = f"{col_prefix}_{col_target}"
+
+    df_imputed = df_imputed.rename(columns={col_target: pred_col})
+    df_imputed = df_imputed.drop(columns=["interval", "is_droped"], errors="ignore")
+
+    df_merged = pd.concat(
+        [df_orig.reset_index(drop=True), df_imputed.reset_index(drop=True)],
+        axis=1,
+    )
+
+    df_merged = df_merged[df_merged["is_droped"] == True]
+
+    return metrics_func(
+        df=df_merged,
+        target_col=col_target,
+        pred_col=pred_col,
+    )
+
+
+# def prepare(df):
+#     df = df.copy()
+#     df = df.sort_index()
+#     df = df[~df.index.duplicated(keep="first")]
+#     return df
+
+
+def safe_interp(df, col_target, method, order=None):
+    s = df[col_target]
+
+    if order is not None:
+        res = s.interpolate(method=method, order=order)
+    else:
+        res = s.interpolate(method=method)
+
+    res = res.reindex(df.index)
+
+    arr = res.to_numpy(dtype=float)
+
+    if len(arr) != len(df):
+        arr = np.resize(arr, len(df))
+
+    return arr
+
+def extract_features(window):
+    last = window[-1]
+    prev = window[-2]
+
+    features = []
+
+    features.extend(window[-20:])
+
+    features.append(np.mean(window))
+    features.append(np.std(window))
+    features.append(np.min(window))
+    features.append(np.max(window))
+    features.append(np.median(window))
+
+    ema = pd.Series(window).ewm(span=min(20, len(window))).mean().values[-1]
+    features.append(ema)
+
+    features.append(last - prev)
+    features.append(last - window[0])
+
+    trend = np.polyfit(np.arange(len(window)), window, 1)[0]
+    features.append(trend)
+
+    return np.array(features, dtype=np.float32)
+
+
+def build_training_data(values, lag):
+    X, y = [], []
+
+    for i in range(lag, len(values)):
+        if np.isnan(values[i]):
+            continue
+
+        window = values[i - lag:i]
+
+        if np.isnan(window).any():
+            continue
+
+        X.append(extract_features(window))
+        y.append(values[i])
+
+    return np.array(X, dtype=np.float32), np.array(y, dtype=np.float32)
+
+
+def get_lag_vector(values, i, lag):
+    if i < lag:
+        return None
+
+    window = values[i - lag:i]
+
+    if np.isnan(window).any():
+        return None
+
+    return extract_features(window)
+
+
+def build_feature_matrix(df, col_target):
+    df_feat = add_additional_features(df.copy())
+
+    feature_cols = [
+        "year", "week", "day_of_week",
+        "hour", "minute",
+        "hour_sin", "hour_cos",
+        "day_of_week_sin", "day_of_week_cos",
+        "week_sin", "week_cos"
+    ]
+
+    X = df_feat[feature_cols].values
+    y = df_feat[col_target].values
+
+    return X, y, feature_cols
+
+def cosine_beta_schedule(T):
+    steps = T + 1
+    x = np.linspace(0, steps, steps)
+    alphas_cumprod = np.cos((x / steps + 0.008) / 1.008 * np.pi / 2) ** 2
+    alphas_cumprod = alphas_cumprod / alphas_cumprod[0]
+    betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
+    return np.clip(betas, 1e-5, 0.999)
+
+def split_sequence(sequence, n_steps):
+
+    X, y = [], []
+
+    for i in range(len(sequence) - n_steps):
+        seq_x, seq_y = sequence[i:i + n_steps, :], sequence[i + n_steps, 0]
+        X.append(seq_x)
+        y.append(seq_y)
+    return np.array(X), np.array(y)
+
+
+def create_x_input(df_train, n_steps):
+    return df_train.iloc[-n_steps:].values
+
+
+def make_predictions(x_input, x_future, n_features, model, lag, count_pred_points):
+
+    predict_values = []
+    for _ in range(count_pred_points):
+
+        x_input_tensor = tf.convert_to_tensor(x_input.reshape((1, -1)), dtype=tf.float32)
+        try:
+            y_predict = model.predict(x_input_tensor)
+
+        except Exception as e:
+            print(e)
+            raise
+
+        predict_values.append(y_predict)
+        x_input = np.delete(x_input, 0, axis=1)
+        future_lag = x_future[0]
+        x_future = np.delete(x_future, 0, axis=0)
+        future_lag[0] = y_predict
+        x_input = np.append(x_input, future_lag.reshape(1, 1, -1), axis=1)
+        x_input = x_input.reshape((1, lag, n_features))
+
+    return predict_values
+
+def make_predictions_bidirectional(x_inputs, model):
+
+    x_inputs = np.asarray(x_inputs, dtype=np.float32)
+    x_inputs = x_inputs.reshape(len(x_inputs), -1)
+
+    return model.predict(x_inputs)
+
+
+def create_bidirectional_inputs(df, use_features, gap_indices, lag_before=25, lag_after=25):
+
+    values = df[use_features].to_numpy(dtype=np.float32)
+
+    x_inputs = []
+    valid_indices = []
+
+    for idx in gap_indices:
+
+        if idx < lag_before:
+            continue
+
+        if idx + lag_after >= len(values):
+            continue
+
+        left = values[idx - lag_before:idx]
+        right = values[idx + 1:idx + 1 + lag_after]
+
+        sample = np.concatenate((left, right), axis=0)
+
+        x_inputs.append(sample)
+        valid_indices.append(idx)
+
+    return (
+        np.asarray(x_inputs, dtype=np.float32),
+        np.asarray(valid_indices)
+    )
+
+def build_gap_windows_bidirectional(df, df_prefill, col_target):
+
+    df = df.copy().sort_index()
+    df_prefill = df_prefill.copy().sort_index()
+
+    is_nan = df[col_target].isna().to_numpy()
+
+    groups = []
+    start = None
+
+    for i, flag in enumerate(is_nan):
+        if flag:
+            if start is None:
+                start = i
+        elif start is not None:
+            groups.append((start, i - 1))
+            start = None
+
+    if start is not None:
+        groups.append((start, len(df) - 1))
+
+    result = []
+
+    for g_start, g_end in groups:
+        result.append({
+            "start": g_start,
+            "end": g_end,
+            "gap_indices": np.arange(g_start, g_end + 1)
+        })
+
+    return result
+
+def build_gap_windows(df, df_prefill, col_target, lag=10):
+
+    df = df.copy().sort_index()
+    df_prefill = df_prefill.copy().sort_index()
+
+    values = df[col_target].values
+    is_nan = np.isnan(values)
+
+    groups = []
+    start = None
+
+    for i in range(len(values)):
+
+        if is_nan[i]:
+            if start is None:
+                start = i
+        else:
+            if start is not None:
+                groups.append((start, i - 1))
+                start = None
+
+    if start is not None:
+        groups.append((start, len(values) - 1))
+
+    result = []
+
+    for g_start, g_end in groups:
+
+        df_gaps = df.iloc[g_start:g_end + 1].copy()
+
+        gap_len = len(df_gaps)
+
+        if gap_len < lag:
+            need = lag - gap_len
+
+            right_part = df_prefill.iloc[g_end + 1:g_end + 1 + need].copy()
+
+            df_gaps = pd.concat([df_gaps, right_part])
+
+        prev_start = g_start - lag
+        prev_end = g_start
+
+        df_previous = df_prefill.iloc[prev_start:prev_end].copy()
+
+        if len(df_previous) < lag:
+            need = lag - len(df_previous)
+
+            future_part = df_prefill.iloc[g_end + 1:g_end + 1 + need].copy()
+
+            df_previous = pd.concat([df_previous, future_part])
+
+        assert len(df_previous) >= lag, f"df_previous too short: {len(df_previous)} < {lag}"
+        assert len(df_gaps) >= lag, f"df_gaps too short: {len(df_gaps)} < {lag}"
+        assert not df_previous.isna().any().any(), "df_previous contains NaN"
+
+        result.append({
+            "df_previous": df_previous,
+            "df_gaps": df_gaps
+        })
+
+    return result
+
+def split_sequence_bidirectional(values, lag_before=25, lag_after=25):
+
+    X = []
+    y = []
+
+    for i in range(lag_before, len(values) - lag_after):
+
+        left = values[i - lag_before:i]
+        right = values[i + 1:i + 1 + lag_after]
+
+        sample = np.concatenate([left, right], axis=0)
+
+        X.append(sample)
+        y.append(values[i, 0])
+
+    return np.asarray(X), np.asarray(y)

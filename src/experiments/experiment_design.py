@@ -1,7 +1,6 @@
 """
 pdm run src/experiments/experiment_design.py
 """
-
 import os
 import pandas as pd
 from src.data.data_config import datasets_csv_dict
@@ -9,15 +8,12 @@ from src.data.data_config import datasets_csv_dict
 home_path = os.getcwd()
 export_path = os.path.join(home_path, "export")
 
-
-imputation_methods = ["HDIRT"]
 datasets_to_test = ["russia_amur_region", "Daily_Climate", "Temperature_in_Celsius", "Istanbul_Traffic_Index", "russia_elista"]
-datasets_to_test = ["Temperature_in_Celsius"]
 
-good = ["Istanbul_Traffic_Index"]
+datasets_to_test = ["russia_amur_region"]
 
-prc_list = [10, 30, 50, 70]
-prc_list = [50, 70]
+# prc_list = [10, 30, 50, 70]
+prc_list = [3]
 
 
 def create_experiment_design(experiment_path):
@@ -30,6 +26,7 @@ def create_experiment_design(experiment_path):
         for prc in prc_list:
             path_to_save = os.path.join(
                 experiment_path,
+                "results",
                 dataset,
                 str(prc),
             )
@@ -45,7 +42,3 @@ def create_experiment_design(experiment_path):
                 })
 
     return pd.DataFrame(rows)
-
-
-
-

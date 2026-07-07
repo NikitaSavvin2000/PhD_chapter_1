@@ -16,7 +16,6 @@ def find_src_root(path: Path) -> Path:
 
 SRC_ROOT = find_src_root(Path(__file__))
 
-
 class MoscowFormatter(logging.Formatter):
     def format(self, record):
         dt = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%d-%m-%Y %H:%M:%S")
@@ -106,29 +105,28 @@ class CSVLogHandler(logging.Handler):
 
 
 def get_logger(
-        log_dir: str,
-        name: str = "app"
+        log_dir: str | Path = "logs",
+        name: str = "app",
 ) -> logging.Logger:
+    log_dir = Path(log_dir).expanduser().resolve()
+    log_dir.mkdir(parents=True, exist_ok=True)
 
     logger = logging.getLogger(name)
 
     logger.setLevel(logging.INFO)
     logger.propagate = False
 
-    if not logger.handlers:
-        console_handler = logging.StreamHandler()
+    if logger.handlers:
+        return logger
 
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(MoscowFormatter())
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(MoscowFormatter())
 
-        # excel_handler = ExcelLogHandler(log_dir)
-        # excel_handler.setLevel(logging.INFO)
+    csv_handler = CSVLogHandler(log_dir)
+    csv_handler.setLevel(logging.INFO)
 
-        csv_handler = CSVLogHandler(log_dir)
-        csv_handler.setLevel(logging.INFO)
-
-        logger.addHandler(console_handler)
-        # logger.addHandler(excel_handler)
-        logger.addHandler(csv_handler)
+    logger.addHandler(console_handler)
+    logger.addHandler(csv_handler)
 
     return logger
