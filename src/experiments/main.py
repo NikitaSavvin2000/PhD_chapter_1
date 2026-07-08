@@ -32,7 +32,7 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
-WORKERS = 1
+WORKERS = 12
 
 EXPERIMENT_NAME = "prod_test"
 
@@ -52,12 +52,10 @@ df_exp = create_experiment_design(experiment_path=experiment_path)
 
 df_to_exp = progress_loader(df_experiment_design=df_exp, progress_csv_path=progress_csv_path, logger=logger)
 
-experiment_count = 1
+experiment_count = 25
 
 
 def run_experiment(row_exp):
-
-
     try:
         dataset = row_exp["dataset"]
         csv_link = row_exp["csv_link"]
@@ -579,13 +577,13 @@ def run_experiment(row_exp):
         logger.error(e)
 
 
-for _, row_exp in df_to_exp.iterrows():
-    run_experiment(row_exp=row_exp)
+# for _, row_exp in df_to_exp.iterrows():
+#     run_experiment(row_exp=row_exp)
 
 
 
-# if __name__ == "__main__":
-#     rows = df_to_exp.to_dict("records")
-#
-#     with ProcessPoolExecutor(max_workers=WORKERS) as executor:
-#         executor.map(run_experiment, rows)
+if __name__ == "__main__":
+    rows = df_to_exp.to_dict("records")
+
+    with ProcessPoolExecutor(max_workers=WORKERS) as executor:
+        executor.map(run_experiment, rows)
