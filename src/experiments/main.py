@@ -7,7 +7,7 @@ import random
 import numpy as np
 import pandas as pd
 
-# from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 from src.processing.data_processing import (
     create_error_rate_data, create_intervals, regression_metrics_by_interval,
