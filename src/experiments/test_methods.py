@@ -6,6 +6,7 @@ import gc
 import random
 import numpy as np
 import pandas as pd
+from src.data.data_config import datasets_csv_dict
 
 # from concurrent.futures import ProcessPoolExecutor
 
@@ -20,7 +21,7 @@ from src.methods.imputation_methods import (
     LAST_imputation, MEDIAN_imputation, SMEAN_imputation,
     LINTER_imputation, XGB_imputation, SFLXGB_imputation, POLYNOMIAL_imputation,
     QUADRATIC_imputation, CUBIC_imputation, SPLINE_imputation, LINEAR_imputation,
-    CSBI_imputation, SFLXRF_imputation, RF_imputation, SFLXDIFF_imputation, PFBGB_imputation, PFBRF_imputation
+    CSBI_imputation, SFLXRF_imputation, RF_imputation, PFBGB_imputation, PFBRF_imputation
 )
 
 
@@ -66,19 +67,23 @@ def run_experiment(row_exp):
         df_test_with_gaps[col_time] = pd.to_datetime(df_test_with_gaps[col_time])
 
         df_orig = df_orig.set_index(col_time)
-        df_test_with_gaps = df_test_with_gaps.set_index(col_time)
-
+        # df_test_with_gaps = df_test_with_gaps.set_index(col_time)
+        # df_test_with_gaps = df_test_with_gaps.set_index(col_time, drop=False)
 
         """ ========================================= METHOD ========================================="""
-
-        # df_METHOD_res = PFBGB_imputation(df=df_test_with_gaps, col_target=col_target)
-        # df_METHOD_res = SKNN_imputation(df=df_test_with_gaps, col_target=col_target)
-        df_METHOD_res = PFBRF_imputation(df=df_test_with_gaps, col_target=col_target)
+        try:
+            # df_METHOD_res = PFBGB_imputation(df=df_test_with_gaps, col_target=col_target)
+            # df_METHOD_res = SKNN_imputation(df=df_test_with_gaps, col_target=col_target)
+            # df_METHOD_res = PFBRF_imputation(df=df_test_with_gaps, col_target=col_target)
+            df_METHOD_res = AIM_imputation(df=df_test_with_gaps, col_target=col_target, col_time=col_time)
+        except Exception as e:
+            print(e)
 
 
         # df_METHOD_res = AIM_imputation(df=df_test_with_gaps, col_time=col_time, col_target=col_target,)
 
         """ =========================================================================================="""
+        # print(df_METHOD_res)
         print(df_METHOD_res[df_METHOD_res["is_droped"]])
 
         # df_METHOD_res[col_time] = df_METHOD_res.index
@@ -115,17 +120,30 @@ def run_experiment(row_exp):
     except Exception as e:
         print(e)
 
+
+
+datasets_to_test = ["russia_amur_region", "Daily_Climate", "Temperature_in_Celsius", "Istanbul_Traffic_Index", "russia_elista", "morocco_zone_1", "Australia_Bundoora"]
+
+dataset = "russia_amur_region"
+
+
+csv = datasets_csv_dict[dataset]["csv_link"]
+col_time = datasets_csv_dict[dataset]["col_time"]
+col_target = datasets_csv_dict[dataset]["col_target"]
+
 row_exp = {
-    "dataset": "russia_amur_region",
-    "gap_prc": 10,
-    "csv_link": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnke5YReb1RRwN6ZynJSxoUcXnr2buEXP45mOtnv7X3neOQhT-_vMPnIB4lUBpeu0nQaqWq6awDvtG/pub?gid=935054795&single=true&output=csv",
-    "col_time": "datetime",
-    "col_target": "VC_факт",
+    "gap_prc": 70,
+
+    "dataset": dataset,
+    "csv_link": csv,
+    "col_time": col_time,
+    "col_target": col_target,
+
 }
 
 
-METHOD_metrics_df = run_experiment(row_exp=row_exp)
 
+METHOD_metrics_df = run_experiment(row_exp=row_exp)
 print(METHOD_metrics_df)
 mean_mape = METHOD_metrics_df["mape"].mean()
 mean_rmse = METHOD_metrics_df["rmse"].mean()

@@ -8,12 +8,8 @@ from src.data.data_config import datasets_csv_dict
 home_path = os.getcwd()
 export_path = os.path.join(home_path, "export")
 
-datasets_to_test = ["russia_amur_region", "Daily_Climate", "Temperature_in_Celsius", "Istanbul_Traffic_Index", "russia_elista"]
-
-datasets_to_test = ["russia_amur_region"]
-
-# prc_list = [10, 30, 50, 70]
-prc_list = [3]
+datasets_to_test = ["russia_amur_region", "Daily_Climate", "Istanbul_Traffic_Index", "russia_elista", "morocco_zone_1", "Australia_Bundoora"]
+prc_list = [10, 30, 50, 70]
 
 
 def create_experiment_design(experiment_path):

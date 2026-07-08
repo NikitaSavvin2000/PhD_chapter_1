@@ -1,14 +1,17 @@
 import os
-import math as m
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-import pandas as pd
-import numpy as np
 import random
-import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
-from matplotlib.lines import Line2D
-from matplotlib.ticker import AutoMinorLocator
+import math as m
+import numpy as np
+import pandas as pd
 import tensorflow as tf
+import matplotlib.pyplot as plt
+
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+from scipy.stats import norm, gaussian_kde
+from scipy.interpolate import make_interp_spline
+from matplotlib.ticker import AutoMinorLocator
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
 
 dpi=300
@@ -34,31 +37,35 @@ def assign_interval(df, intervals):
 
 def AIM_split_number(n, gap_classes):
     sum_list = []
+
     for gap_class in gap_classes:
-        s = gap_class[0]
-        e = gap_class[1]
-        x = random.randint(s, e)
-        sum_list.append(x)
+        s, e = gap_class
+        sum_list.append(random.randint(s, e))
 
     if sum(sum_list) >= n:
         return sum_list
-    else:
-        res = n - sum(sum_list)
-        break_count = 0
-        while res > 0 and break_count <= len(gap_classes):
-            for gap_class in gap_classes:
-                s = gap_class[0]
-                e = gap_class[1]
 
-                if s < res < e:
-                    continue
-                else:
-                    x = random.randrange(s, e)
-                    sum_list.append(x)
-                    res -= x
+    res = n - sum(sum_list)
+    break_count = 0
+
+    while res > 0 and break_count <= len(gap_classes):
+        changed = False
+
+        for gap_class in gap_classes:
+            s, e = gap_class
+
+            if not s < res < e:
+                x = random.randrange(s, e)
+                sum_list.append(x)
+                res -= x
+                changed = True
+
+        if not changed:
+            break
+
+        break_count += 1
+
     return sum_list
-
-
 
 
 def split_number(n, seed=None):
@@ -161,7 +168,6 @@ def AIM_create_test_nan(initial_df, test_start_date, percent_gaps, col_time, tar
 
     len_deleted_list = AIM_split_number(n=len_deleted, gap_classes=gap_classes)
 
-
     intervals_to_drop = generate_segments(n=len(df_test_drop), len_deleted_list=len_deleted_list)
     # intervals_to_drop = generate_gap_lengths(len_deleted=len_deleted, gap_classes=gap_classes)
 
@@ -200,6 +206,9 @@ def create_error_rate_data(initial_df, test_start_date, percent_gaps, col_time, 
     df_test_drop = df_test_drop[df_test_drop[col_time] >= test_start_date]
 
     len_df_test_drop = len(df_test_drop.dropna())
+    len_df_test_drop = int(len_df_test_drop)
+    percent_gaps = int(percent_gaps)
+
 
     dolya_del = percent_gaps / 100
 
@@ -210,7 +219,6 @@ def create_error_rate_data(initial_df, test_start_date, percent_gaps, col_time, 
     intervals_to_drop = generate_segments(n=len(df_test_drop), len_deleted_list=len_deleted_list)
 
 
-
     df_test = assign_interval(df=df_test, intervals=intervals)
     df_orig = assign_interval(df=df_orig, intervals=intervals)
 
@@ -218,13 +226,11 @@ def create_error_rate_data(initial_df, test_start_date, percent_gaps, col_time, 
 
     drop_indexes = []
 
-
     for start, end in intervals_to_drop:
         idx_range = df_test.iloc[start:end+1].index.tolist()
         drop_indexes.append(idx_range)
         df_test.iloc[start:end+1, df_test.columns.get_loc(target_value)] = np.nan
         df_test.iloc[start:end+1, df_test.columns.get_loc('is_droped')] = True
-
 
     df_orig['is_droped'] = df_test['is_droped']
     drop_indexes = [i for sub in drop_indexes for i in sub]
@@ -300,7 +306,6 @@ def find_interval(value, load_intervals):
             return interval_num
 
 
-
 def create_intervals(df, n_intervals=10):
     size = len(df)
     step = size // n_intervals
@@ -319,13 +324,8 @@ def create_intervals(df, n_intervals=10):
 
 
 def recive_quantile_internals(df):
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from scipy.stats import norm
-    from scipy.interpolate import make_interp_spline
-    dpi=300
 
+    dpi = 300
 
     data = df['P_l'].dropna()
 
@@ -341,6 +341,7 @@ def recive_quantile_internals(df):
         trimmed_data = data
 
     mu, sigma = trimmed_data.mean(), trimmed_data.std()
+
     if sigma == 0 or np.isnan(sigma):
         sigma = 1e-6
 
@@ -358,29 +359,90 @@ def recive_quantile_internals(df):
         smooth_bin_centers = bin_centers
         smooth_hist = hist
 
-    fig, ax = plt.subplots(figsize=(14, 6), dpi=dpi)
-
-    ax.hist(data, bins=100, density=True, alpha=0.5, color='steelblue', label='Гистограмма')
-
-    ax.plot(smooth_bin_centers, smooth_hist, color='darkorange', linewidth=2.5, label='Сглаженная гистограмма')
-    ax.plot(x, gaussian_curve, 'k--', linewidth=2, label='Нормальное распределение')
-
-    ax.axvline(q_5, color='red', linestyle='--', linewidth=2, label='2.5-й процентиль')
-    ax.axvline(q_95, color='red', linestyle='--', linewidth=2, label='97.5-й процентиль')
-
-    ax.set_title("Распределение значений с усечением по процентилям и аппроксимацией нормальным распределением")
-    ax.set_xlabel("Значение")
-    ax.set_ylabel("Плотность")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-
-    fig.tight_layout()
+    translations = {
+        "ru": {
+            "hist": "Гистограмма",
+            "smooth": "Сглаженная гистограмма",
+            "normal": "Нормальное распределение",
+            "q_low": "2.5-й процентиль",
+            "q_high": "97.5-й процентиль",
+            "title": "Распределение значений с усечением по процентилям и аппроксимацией нормальным распределением",
+            "xlabel": "Значение",
+            "ylabel": "Плотность",
+            "file": "histogram_data_ru.png"
+        },
+        "en": {
+            "hist": "Histogram",
+            "smooth": "Smoothed histogram",
+            "normal": "Normal distribution",
+            "q_low": "2.5th percentile",
+            "q_high": "97.5th percentile",
+            "title": "Value distribution with percentile trimming and normal distribution approximation",
+            "xlabel": "Value",
+            "ylabel": "Density",
+            "file": "histogram_data_en.png"
+        }
+    }
 
     os.makedirs(res_path, exist_ok=True)
-    save_path = os.path.join(res_path, "histogram_data.png")
 
-    fig.savefig(save_path, bbox_inches="tight", dpi=dpi)
-    plt.close(fig)
+    for lang, text in translations.items():
+
+        fig, ax = plt.subplots(figsize=(14, 6), dpi=dpi)
+
+        ax.hist(
+            data,
+            bins=100,
+            density=True,
+            alpha=0.5,
+            color='steelblue',
+            label=text["hist"]
+        )
+
+        ax.plot(
+            smooth_bin_centers,
+            smooth_hist,
+            color='darkorange',
+            linewidth=2.5,
+            label=text["smooth"]
+        )
+
+        ax.plot(
+            x,
+            gaussian_curve,
+            'k--',
+            linewidth=2,
+            label=text["normal"]
+        )
+
+        ax.axvline(
+            q_5,
+            color='red',
+            linestyle='--',
+            linewidth=2,
+            label=text["q_low"]
+        )
+
+        ax.axvline(
+            q_95,
+            color='red',
+            linestyle='--',
+            linewidth=2,
+            label=text["q_high"]
+        )
+
+        ax.set_title(text["title"])
+        ax.set_xlabel(text["xlabel"])
+        ax.set_ylabel(text["ylabel"])
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+
+        fig.tight_layout()
+
+        save_path = os.path.join(res_path, text["file"])
+        fig.savefig(save_path, bbox_inches="tight", dpi=dpi)
+
+        plt.close(fig)
 
     lower_limit = trimmed_data.min()
     upper_limit = trimmed_data.max()
@@ -403,76 +465,121 @@ def plot_interval_distribution(
 
     data = df_only_gaps["P_l"]
 
-    fig, ax = plt.subplots(1, 1, figsize=(14, 9), dpi=dpi)
+    os.makedirs(path_to_save, exist_ok=True)
 
-    n, bins, patches = ax.hist(
-        data,
-        bins=[interval[0] for interval in intervals] + [intervals[-1][1]],
-        color="steelblue",
-        alpha=0.75,
-        edgecolor="black"
-    )
+    translations = {
+        "ru": {
+            "xlabel": "Значение",
+            "ylabel": "Количество наблюдений",
+            "title": f"Распределение значения по интервалам\nОбщий объем пропусков от всех данных = {gaps_percent}%",
+            "interval": "Интервал",
+            "share": "Доля данных (%)",
+            "mape": "MAPE (%)",
+            "count": "Количество",
+            "table_file": "table_ru.csv",
+            "plot_file": "histogram_ru.png"
+        },
+        "en": {
+            "xlabel": "Value",
+            "ylabel": "Number of observations",
+            "title": f"Value distribution by intervals\nTotal missing data share = {gaps_percent}%",
+            "interval": "Interval",
+            "share": "Data share (%)",
+            "mape": "MAPE (%)",
+            "count": "Count",
+            "table_file": "table_en.csv",
+            "plot_file": "histogram_en.png"
+        }
+    }
 
-    ax.set_xlabel("Значение", fontsize=14)
-    ax.set_ylabel("Количество наблюдений", fontsize=14)
-    ax.set_title(
-        f"Распределение значения по интервалам\nОбщий объем пропусков от всех данных = {gaps_percent}%",
-        fontsize=16,
-        pad=15
-    )
+    df_tables = {}
 
-    ax.grid(axis="y", linestyle="--", linewidth=0.8, alpha=0.5)
+    for lang, text in translations.items():
 
-    xticks_positions = [(i[0] + i[1]) / 2 for i in intervals]
+        fig, ax = plt.subplots(1, 1, figsize=(14, 9), dpi=dpi)
 
-    xticks_labels = [f"{m.ceil(i[0])} – {m.ceil(i[1])}" for i in intervals]
+        n, bins, patches = ax.hist(
+            data,
+            bins=[interval[0] for interval in intervals] + [intervals[-1][1]],
+            color="steelblue",
+            alpha=0.75,
+            edgecolor="black"
+        )
 
-    ax.set_xticks(xticks_positions)
-    ax.set_xticklabels(xticks_labels, rotation=90, fontsize=12)
-    ax.tick_params(axis="y", labelsize=14)
+        ax.set_xlabel(text["xlabel"], fontsize=14)
+        ax.set_ylabel(text["ylabel"], fontsize=14)
+        ax.set_title(
+            text["title"],
+            fontsize=16,
+            pad=15
+        )
 
-    total_samples = len(data)
-    table_rows = []
+        ax.grid(axis="y", linestyle="--", linewidth=0.8, alpha=0.5)
 
-    for i, interval in enumerate(intervals):
-        count = ((data >= interval[0]) & (data <= interval[1])).sum()
-        percent = count / total_samples * 100
-        mape_val = mape_by_interval[i][1]
+        xticks_positions = [(i[0] + i[1]) / 2 for i in intervals]
+        xticks_labels = [f"{m.ceil(i[0])} – {m.ceil(i[1])}" for i in intervals]
 
-        center = (bins[i] + bins[i + 1]) / 2
+        ax.set_xticks(xticks_positions)
+        ax.set_xticklabels(xticks_labels, rotation=90, fontsize=12)
+        ax.tick_params(axis="y", labelsize=14)
 
-        ax.text(center, n[i] + np.max(n) * 0.06, f"{percent:.2f}%", ha="center", fontsize=11)
+        total_samples = len(data)
+        table_rows = []
 
-        ax.text(center, n[i] / 2, f"{count}", ha="center", fontsize=11)
+        for i, interval in enumerate(intervals):
 
-        table_rows.append({
-            "Интервал": f"{m.ceil(interval[0])} – {m.ceil(interval[1])}",
-            "Доля данных (%)": round(percent, 2),
-            "MAPE (%)": round(mape_val, 2),
-            "Количество": int(count)
-        })
+            count = ((data >= interval[0]) & (data <= interval[1])).sum()
+            percent = count / total_samples * 100
+            mape_val = mape_by_interval[i][1]
 
-    ax.set_ylim(0, np.max(n) * 1.10)
+            center = (bins[i] + bins[i + 1]) / 2
 
-    df_table = pd.DataFrame(table_rows)
+            ax.text(
+                center,
+                n[i] + np.max(n) * 0.06,
+                f"{percent:.2f}%",
+                ha="center",
+                fontsize=11
+            )
 
+            ax.text(
+                center,
+                n[i] / 2,
+                f"{count}",
+                ha="center",
+                fontsize=11
+            )
 
-    df_table.to_csv(
-        os.path.join(path_to_save, f"table.csv"),
-        index=False,
-        encoding="utf-8-sig"
-    )
+            table_rows.append({
+                text["interval"]: f"{m.ceil(interval[0])} – {m.ceil(interval[1])}",
+                text["share"]: round(percent, 2),
+                text["mape"]: round(mape_val, 2),
+                text["count"]: int(count)
+            })
 
-    plt.tight_layout()
+        ax.set_ylim(0, np.max(n) * 1.10)
 
-    plt.savefig(
-        os.path.join(path_to_save, f"histogram.png"),
-        bbox_inches="tight"
-    )
+        df_table = pd.DataFrame(table_rows)
 
-    plt.close(fig)
+        df_table.to_csv(
+            os.path.join(path_to_save, text["table_file"]),
+            index=False,
+            encoding="utf-8-sig"
+        )
 
-    return df_table, path_to_save
+        plt.tight_layout()
+
+        plt.savefig(
+            os.path.join(path_to_save, text["plot_file"]),
+            bbox_inches="tight",
+            dpi=dpi
+        )
+
+        plt.close(fig)
+
+        df_tables[lang] = df_table
+
+    return df_tables, path_to_save
 
 
 def regression_metrics_by_interval(df, target_col, pred_col):
@@ -511,42 +618,98 @@ def plot_dataset(
         col_target,
         col_time,
 ):
-    import os
-    import matplotlib.pyplot as plt
 
     plt.rcParams["font.family"] = "DejaVu Sans"
 
-    fig, ax = plt.subplots(figsize=(16, 6))
+    translations = {
+        "ru": {
+            "series": "Временной ряд",
+            "gaps": "Пропуски",
+            "title": f"Датасет - {dataset}\nДоля пропусков: {gap_prc}%. Эксперимент №{experiment}",
+            "xlabel": "Время",
+            "ylabel": "Значение",
+            "file_suffix": "ru"
+        },
+        "en": {
+            "series": "Time series",
+            "gaps": "Missing values",
+            "title": f"Dataset - {dataset}\nMissing data share: {gap_prc}%. Experiment №{experiment}",
+            "xlabel": "Time",
+            "ylabel": "Value",
+            "file_suffix": "en"
+        }
+    }
 
-    ax.plot(
-        df[col_time],
-        df[col_target],
-        linewidth=1.2,
-        color=blue_gray,
-        label="Временной ряд",
-    )
+    os.makedirs(path_to_save, exist_ok=True)
 
-    mask = df["is_droped"].values
+    for lang, text in translations.items():
 
-    ymin = df[col_target].min()
-    ymax = df[col_target].max()
+        fig, ax = plt.subplots(figsize=(16, 6))
 
-    pad = (ymax - ymin) * 0.06
-    ymin_p = ymin + pad
-    ymax_p = ymax - pad
+        ax.plot(
+            df[col_time],
+            df[col_target],
+            linewidth=1.2,
+            color=blue_gray,
+            label=text["series"],
+        )
 
-    start = None
-    first_gap = True
+        mask = df["is_droped"].values
 
-    for i in range(len(mask)):
-        if mask[i] and start is None:
-            start = i
+        ymin = df[col_target].min()
+        ymax = df[col_target].max()
 
-        elif not mask[i] and start is not None:
-            end = i - 1
+        pad = (ymax - ymin) * 0.06
+        ymin_p = ymin + pad
+        ymax_p = ymax - pad
 
+        start = None
+        first_gap = True
+
+        for i in range(len(mask)):
+            if mask[i] and start is None:
+                start = i
+
+            elif not mask[i] and start is not None:
+                end = i - 1
+
+                x0 = df[col_time].iloc[start]
+                x1 = df[col_time].iloc[end]
+
+                ax.fill_between(
+                    [x0, x1],
+                    ymin_p,
+                    ymax_p,
+                    color="red",
+                    alpha=0.05,
+                    zorder=0,
+                )
+
+                ax.vlines(
+                    [x0, x1],
+                    ymin=ymin_p,
+                    ymax=ymax_p,
+                    color="red",
+                    linewidth=0.5,
+                    alpha=0.6,
+                    zorder=1,
+                )
+
+                if first_gap:
+                    ax.plot(
+                        [],
+                        [],
+                        color="red",
+                        alpha=0.05,
+                        label=text["gaps"]
+                    )
+
+                first_gap = False
+                start = None
+
+        if start is not None:
             x0 = df[col_time].iloc[start]
-            x1 = df[col_time].iloc[end]
+            x1 = df[col_time].iloc[-1]
 
             ax.fill_between(
                 [x0, x1],
@@ -568,68 +731,56 @@ def plot_dataset(
             )
 
             if first_gap:
-                ax.plot([], [], color="red", alpha=0.05, label="Пропуски")
+                ax.plot(
+                    [],
+                    [],
+                    color="red",
+                    alpha=0.05,
+                    label=text["gaps"]
+                )
 
-            first_gap = False
-            start = None
-
-    if start is not None:
-        x0 = df[col_time].iloc[start]
-        x1 = df[col_time].iloc[-1]
-
-        ax.fill_between(
-            [x0, x1],
-            ymin_p,
-            ymax_p,
-            color="red",
-            alpha=0.05,
-            zorder=0,
+        ax.set_title(
+            text["title"],
+            fontsize=16,
+            pad=15,
         )
 
-        ax.vlines(
-            [x0, x1],
-            ymin=ymin_p,
-            ymax=ymax_p,
-            color="red",
-            linewidth=0.5,
-            alpha=0.6,
-            zorder=1,
+        ax.set_xlabel(text["xlabel"], fontsize=13)
+        ax.set_ylabel(text["ylabel"], fontsize=13)
+
+        ax.grid(
+            True,
+            which="major",
+            axis="both",
+            linestyle="--",
+            linewidth=0.3
         )
 
-        if first_gap:
-            ax.plot([], [], color="red", alpha=0.05, label="Пропуски")
+        ax.tick_params(
+            axis="both",
+            labelsize=11
+        )
 
-    ax.set_title(
-        f"Датасет - {dataset}\nДоля пропусков: {gap_prc}%. Эксперимент №{experiment}",
-        fontsize=16,
-        pad=15,
-    )
+        ax.legend(
+            fontsize=11,
+            loc="upper right"
+        )
 
-    ax.set_xlabel("Время", fontsize=13)
-    ax.set_ylabel("Значение", fontsize=13)
+        fig.tight_layout()
 
-    ax.grid(True, which="major", axis="both", linestyle="--", linewidth=0.3)
+        file_name = (
+            f"{dataset}_gap_{gap_prc}_experiment_{experiment}_{text['file_suffix']}.png"
+            .replace(" ", "_")
+        )
 
-    ax.tick_params(axis="both", labelsize=11)
+        fig.savefig(
+            os.path.join(path_to_save, file_name),
+            dpi=300,
+            bbox_inches="tight",
+        )
 
-    ax.legend(
-        fontsize=11,
-        loc="upper right"
-    )
+        plt.close(fig)
 
-    fig.tight_layout()
-
-    os.makedirs(path_to_save, exist_ok=True)
-
-    file_name = f"{dataset}_gap_{gap_prc}_experiment_{experiment}.png".replace(" ", "_")
-
-    fig.savefig(
-        os.path.join(path_to_save, file_name),
-        dpi=300,
-        bbox_inches="tight",
-    )
-
-    plt.close(fig)
 
 def plot_gap_distribution(
         df,
@@ -652,64 +803,87 @@ def plot_gap_distribution(
 
     percentages = counts / counts.sum() * 100
 
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    bars = ax.bar(
-        counts.index.astype(str),
-        counts.values,
-        width=0.7,
-        color=blue_gray,
-        edgecolor="black",
-        linewidth=0.8,
-    )
-
-    for bar, pct in zip(bars, percentages):
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height(),
-            f"{pct:.1f}%",
-            ha="center",
-            va="bottom",
-            fontsize=11,
-            )
-
-    ax.set_title(
-        f"Датасет - {dataset}\nДоля пропусков: {gap_prc}%. Эксперимент №{experiment}",
-        fontsize=16,
-        pad=15,
-    )
-
-    ax.set_xlabel("Интервал", fontsize=13)
-    ax.set_ylabel("Количество удалённых точек", fontsize=13)
-
-    ax.grid(
-        True,
-        which="major",
-        axis="both",
-        linestyle="--",
-        linewidth=0.4,
-        alpha=0.5,
-    )
-
-    ax.set_axisbelow(True)
-
-    fig.tight_layout()
+    translations = {
+        "ru": {
+            "title": f"Датасет - {dataset}\nДоля пропусков: {gap_prc}%. Эксперимент №{experiment}",
+            "xlabel": "Интервал",
+            "ylabel": "Количество удалённых точек",
+            "file_suffix": "ru"
+        },
+        "en": {
+            "title": f"Dataset - {dataset}\nMissing data share: {gap_prc}%. Experiment №{experiment}",
+            "xlabel": "Interval",
+            "ylabel": "Number of removed points",
+            "file_suffix": "en"
+        }
+    }
 
     os.makedirs(path_to_save, exist_ok=True)
 
-    file_name = (
-        f"{dataset}_gap_distribution_{gap_prc}_experiment_{experiment}.png"
-        .replace(" ", "_")
-    )
+    for lang, text in translations.items():
 
-    fig.savefig(
-        os.path.join(path_to_save, file_name),
-        dpi=300,
-        bbox_inches="tight",
-    )
+        fig, ax = plt.subplots(figsize=(12, 6))
 
-    plt.close(fig)
+        bars = ax.bar(
+            counts.index.astype(str),
+            counts.values,
+            width=0.7,
+            color=blue_gray,
+            edgecolor="black",
+            linewidth=0.8,
+        )
 
+        for bar, pct in zip(bars, percentages):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height(),
+                f"{pct:.1f}%",
+                ha="center",
+                va="bottom",
+                fontsize=11,
+                )
+
+        ax.set_title(
+            text["title"],
+            fontsize=16,
+            pad=15,
+        )
+
+        ax.set_xlabel(
+            text["xlabel"],
+            fontsize=13
+        )
+
+        ax.set_ylabel(
+            text["ylabel"],
+            fontsize=13
+        )
+
+        ax.grid(
+            True,
+            which="major",
+            axis="both",
+            linestyle="--",
+            linewidth=0.4,
+            alpha=0.5,
+        )
+
+        ax.set_axisbelow(True)
+
+        fig.tight_layout()
+
+        file_name = (
+            f"{dataset}_gap_distribution_{gap_prc}_experiment_{experiment}_{text['file_suffix']}.png"
+            .replace(" ", "_")
+        )
+
+        fig.savefig(
+            os.path.join(path_to_save, file_name),
+            dpi=300,
+            bbox_inches="tight",
+        )
+
+        plt.close(fig)
 
 
 def plot_distributions_error(
@@ -733,7 +907,32 @@ def plot_distributions_error(
     P50_COLOR = "#A23B72"
     P95_COLOR = "#F18F01"
 
-    fig, axes = plt.subplots(2, 1, figsize=(16, 12))
+    translations = {
+        "ru": {
+            "real": "Реальные данные",
+            "pred": "Предсказанные данные",
+            "mean": "Среднее",
+            "p5": "5%",
+            "p50": "50%",
+            "p95": "95%",
+            "frequency": "Частота",
+            "value": "Значение",
+            "title": f"Датасет - {dataset}. Метод - {name}.\nДоля пропусков: {gap_prc}%. Эксперимент №{experiment}.",
+            "file_suffix": "ru"
+        },
+        "en": {
+            "real": "Real data",
+            "pred": "Predicted data",
+            "mean": "Mean",
+            "p5": "5%",
+            "p50": "50%",
+            "p95": "95%",
+            "frequency": "Frequency",
+            "value": "Value",
+            "title": f"Dataset - {dataset}. Method - {name}.\nMissing data share: {gap_prc}%. Experiment №{experiment}.",
+            "file_suffix": "en"
+        }
+    }
 
     real = df[col_target].dropna()
     pred = df[f"{name}_{col_target}"].dropna()
@@ -763,72 +962,102 @@ def plot_distributions_error(
 
     xticks = nice_range(global_min, global_max)
 
-    def draw(ax, data, title, color):
-        ax.hist(
-            data,
-            bins=40,
-            range=(global_min, global_max),
-            color=color,
-            edgecolor=EDGE_COLOR,
-            linewidth=0.5,
-            alpha=0.85,
-        )
-
-        mean = data.mean()
-        p5 = np.percentile(data, 5)
-        p50 = np.percentile(data, 50)
-        p95 = np.percentile(data, 95)
-
-        ax.axvline(mean, linestyle="--", linewidth=1.3, color=MEAN_COLOR)
-        ax.axvline(p5, linestyle="--", linewidth=1.2, color=P5_COLOR)
-        ax.axvline(p50, linestyle="--", linewidth=1.2, color=P50_COLOR)
-        ax.axvline(p95, linestyle="--", linewidth=1.2, color=P95_COLOR)
-
-        ax.set_title(title, fontsize=14, pad=10)
-        ax.set_ylabel("Частота", fontsize=12)
-
-        ax.set_xticks(xticks)
-        ax.set_xlabel("Значение", fontsize=12)
-
-        ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-
-        ax.grid(True, which="major", linestyle="--", linewidth=0.4, alpha=0.6)
-        ax.grid(True, which="minor", linestyle=":", linewidth=0.3, alpha=0.4)
-
-    draw(axes[0], real, col_target, REAL_COLOR)
-    draw(axes[1], pred, f"{name}_{col_target}", AIM_COLOR)
-
-    legend_items = [
-        Patch(facecolor=REAL_COLOR, label="Реальные данные"),
-        Patch(facecolor=AIM_COLOR, label="Предсказанные данные"),
-        Line2D([0], [0], color=MEAN_COLOR, linestyle="--", label="Среднее"),
-        Line2D([0], [0], color=P5_COLOR, linestyle="--", label="5%"),
-        Line2D([0], [0], color=P50_COLOR, linestyle="--", label="50%"),
-        Line2D([0], [0], color=P95_COLOR, linestyle="--", label="95%"),
-    ]
-
-    axes[0].legend(handles=legend_items, loc="upper right", fontsize=10)
-    axes[1].legend(handles=legend_items, loc="upper right", fontsize=10)
-
-    fig.suptitle(
-        f"Датасет - {dataset}. Метод - {name}.\nДоля пропусков: {gap_prc}%. Эксперимент №{experiment}.",
-        fontsize=16,
-        y=0.98,
-    )
-
-    fig.tight_layout()
-
     os.makedirs(path_to_save, exist_ok=True)
 
-    file_name = f"{dataset}_method_{name}_distribution_error_{gap_prc}_experiment_{experiment}.png".replace(" ", "_")
+    for lang, text in translations.items():
 
-    fig.savefig(
-        os.path.join(path_to_save, file_name),
-        dpi=300,
-        bbox_inches="tight",
-    )
+        fig, axes = plt.subplots(2, 1, figsize=(16, 12))
 
-    plt.close(fig)
+        def draw(ax, data, title, color):
+
+            ax.hist(
+                data,
+                bins=40,
+                range=(global_min, global_max),
+                color=color,
+                edgecolor=EDGE_COLOR,
+                linewidth=0.5,
+                alpha=0.85,
+            )
+
+            mean = data.mean()
+            p5 = np.percentile(data, 5)
+            p50 = np.percentile(data, 50)
+            p95 = np.percentile(data, 95)
+
+            ax.axvline(mean, linestyle="--", linewidth=1.3, color=MEAN_COLOR)
+            ax.axvline(p5, linestyle="--", linewidth=1.2, color=P5_COLOR)
+            ax.axvline(p50, linestyle="--", linewidth=1.2, color=P50_COLOR)
+            ax.axvline(p95, linestyle="--", linewidth=1.2, color=P95_COLOR)
+
+            ax.set_title(title, fontsize=14, pad=10)
+            ax.set_ylabel(text["frequency"], fontsize=12)
+
+            ax.set_xticks(xticks)
+            ax.set_xlabel(text["value"], fontsize=12)
+
+            ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+
+            ax.grid(
+                True,
+                which="major",
+                linestyle="--",
+                linewidth=0.4,
+                alpha=0.6
+            )
+
+            ax.grid(
+                True,
+                which="minor",
+                linestyle=":",
+                linewidth=0.3,
+                alpha=0.4
+            )
+
+        draw(axes[0], real, col_target, REAL_COLOR)
+        draw(axes[1], pred, f"{name}_{col_target}", AIM_COLOR)
+
+        legend_items = [
+            Patch(facecolor=REAL_COLOR, label=text["real"]),
+            Patch(facecolor=AIM_COLOR, label=text["pred"]),
+            Line2D([0], [0], color=MEAN_COLOR, linestyle="--", label=text["mean"]),
+            Line2D([0], [0], color=P5_COLOR, linestyle="--", label=text["p5"]),
+            Line2D([0], [0], color=P50_COLOR, linestyle="--", label=text["p50"]),
+            Line2D([0], [0], color=P95_COLOR, linestyle="--", label=text["p95"]),
+        ]
+
+        axes[0].legend(
+            handles=legend_items,
+            loc="upper right",
+            fontsize=10
+        )
+
+        axes[1].legend(
+            handles=legend_items,
+            loc="upper right",
+            fontsize=10
+        )
+
+        fig.suptitle(
+            text["title"],
+            fontsize=16,
+            y=0.98,
+        )
+
+        fig.tight_layout()
+
+        file_name = (
+            f"{dataset}_method_{name}_distribution_error_{gap_prc}_experiment_{experiment}_{text['file_suffix']}.png"
+            .replace(" ", "_")
+        )
+
+        fig.savefig(
+            os.path.join(path_to_save, file_name),
+            dpi=300,
+            bbox_inches="tight",
+        )
+
+        plt.close(fig)
 
 
 def plot_distribution_single(
@@ -837,12 +1066,6 @@ def plot_distribution_single(
         path_to_save,
         col_target,
 ):
-    import os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from scipy.stats import gaussian_kde
-    from matplotlib.lines import Line2D
-    from matplotlib.ticker import AutoMinorLocator
 
     plt.rcParams["font.family"] = "DejaVu Sans"
 
@@ -852,6 +1075,31 @@ def plot_distribution_single(
     MEDIAN_COLOR = "#A23B72"
     P5_COLOR = "#2E86AB"
     P95_COLOR = "#F18F01"
+
+    translations = {
+        "ru": {
+            "title": f"Датасет - {dataset}",
+            "xlabel": "Значение",
+            "ylabel": "Плотность",
+            "hist": "Гистограмма",
+            "kde": "KDE",
+            "median": "Медиана",
+            "p5": "5%",
+            "p95": "95%",
+            "file_suffix": "ru"
+        },
+        "en": {
+            "title": f"Dataset - {dataset}",
+            "xlabel": "Value",
+            "ylabel": "Density",
+            "hist": "Histogram",
+            "kde": "KDE",
+            "median": "Median",
+            "p5": "5%",
+            "p95": "95%",
+            "file_suffix": "en"
+        }
+    }
 
     data = df_all_values[col_target].dropna().values.astype(float)
 
@@ -869,65 +1117,147 @@ def plot_distribution_single(
     kde = gaussian_kde(data)
     ys = kde(xs)
 
-    fig, ax = plt.subplots(figsize=(16, 8))
-
-    ax.hist(
-        data,
-        bins=40,
-        density=True,
-        color=HIST_COLOR,
-        alpha=0.35,
-        edgecolor="black",
-        linewidth=0.4,
-    )
-
-    ax.plot(xs, ys, color=KDE_COLOR, linewidth=2.2)
-
-    median = np.percentile(data, 50)
-    p5 = np.percentile(data, 5)
-    p95 = np.percentile(data, 95)
-
-    ax.axvline(median, linestyle="--", linewidth=1.4, color=MEDIAN_COLOR)
-    ax.axvline(p5, linestyle="--", linewidth=1.2, color=P5_COLOR)
-    ax.axvline(p95, linestyle="--", linewidth=1.2, color=P95_COLOR)
-
-    ax.set_title(
-        f"Датасет - {dataset}",
-        fontsize=16,
-        pad=12,
-    )
-
-    ax.set_xlabel("Значение", fontsize=12)
-    ax.set_ylabel("Плотность", fontsize=12)
-
-    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-
-    ax.grid(True, which="major", linestyle="--", linewidth=0.4, alpha=0.6)
-    ax.grid(True, which="minor", linestyle=":", linewidth=0.3, alpha=0.4)
-
-    legend_items = [
-        Line2D([0], [0], color=HIST_COLOR, alpha=0.35, linewidth=8, label="Гистограмма"),
-        Line2D([0], [0], color=KDE_COLOR, linewidth=2.2, label="KDE"),
-        Line2D([0], [0], color=MEDIAN_COLOR, linestyle="--", label="Медиана"),
-        Line2D([0], [0], color=P5_COLOR, linestyle="--", label="5%"),
-        Line2D([0], [0], color=P95_COLOR, linestyle="--", label="95%"),
-    ]
-
-    ax.legend(handles=legend_items, loc="upper right", fontsize=10)
-
-    fig.tight_layout()
-
     os.makedirs(path_to_save, exist_ok=True)
 
-    file_name = f"{dataset}_distribution_kde.png".replace(" ", "_")
+    for lang, text in translations.items():
 
-    fig.savefig(
-        os.path.join(path_to_save, file_name),
-        dpi=300,
-        bbox_inches="tight",
-    )
+        fig, ax = plt.subplots(figsize=(16, 8))
 
-    plt.close(fig)
+        ax.hist(
+            data,
+            bins=40,
+            density=True,
+            color=HIST_COLOR,
+            alpha=0.35,
+            edgecolor="black",
+            linewidth=0.4,
+        )
+
+        ax.plot(
+            xs,
+            ys,
+            color=KDE_COLOR,
+            linewidth=2.2
+        )
+
+        median = np.percentile(data, 50)
+        p5 = np.percentile(data, 5)
+        p95 = np.percentile(data, 95)
+
+        ax.axvline(
+            median,
+            linestyle="--",
+            linewidth=1.4,
+            color=MEDIAN_COLOR
+        )
+
+        ax.axvline(
+            p5,
+            linestyle="--",
+            linewidth=1.2,
+            color=P5_COLOR
+        )
+
+        ax.axvline(
+            p95,
+            linestyle="--",
+            linewidth=1.2,
+            color=P95_COLOR
+        )
+
+        ax.set_title(
+            text["title"],
+            fontsize=16,
+            pad=12,
+        )
+
+        ax.set_xlabel(
+            text["xlabel"],
+            fontsize=12
+        )
+
+        ax.set_ylabel(
+            text["ylabel"],
+            fontsize=12
+        )
+
+        ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+
+        ax.grid(
+            True,
+            which="major",
+            linestyle="--",
+            linewidth=0.4,
+            alpha=0.6
+        )
+
+        ax.grid(
+            True,
+            which="minor",
+            linestyle=":",
+            linewidth=0.3,
+            alpha=0.4
+        )
+
+        legend_items = [
+            Line2D(
+                [0],
+                [0],
+                color=HIST_COLOR,
+                alpha=0.35,
+                linewidth=8,
+                label=text["hist"]
+            ),
+            Line2D(
+                [0],
+                [0],
+                color=KDE_COLOR,
+                linewidth=2.2,
+                label=text["kde"]
+            ),
+            Line2D(
+                [0],
+                [0],
+                color=MEDIAN_COLOR,
+                linestyle="--",
+                label=text["median"]
+            ),
+            Line2D(
+                [0],
+                [0],
+                color=P5_COLOR,
+                linestyle="--",
+                label=text["p5"]
+            ),
+            Line2D(
+                [0],
+                [0],
+                color=P95_COLOR,
+                linestyle="--",
+                label=text["p95"]
+            ),
+        ]
+
+        ax.legend(
+            handles=legend_items,
+            loc="upper right",
+            fontsize=10
+        )
+
+        fig.tight_layout()
+
+        file_name = (
+            f"{dataset}_distribution_kde_{text['file_suffix']}.png"
+            .replace(" ", "_")
+        )
+
+        fig.savefig(
+            os.path.join(path_to_save, file_name),
+            dpi=300,
+            bbox_inches="tight",
+        )
+
+        plt.close(fig)
 
 
 def add_additional_features(df):
@@ -1048,14 +1378,18 @@ def build_ranges(drop_indexes):
 
     return ranges
 
+
 def mae(y_true, y_pred):
     return np.mean(np.abs(y_true - y_pred))
+
 
 def rmse(y_true, y_pred):
     return np.sqrt(np.mean((y_true - y_pred) ** 2))
 
+
 def mape(y_true, y_pred):
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
 
 def assign_gap_classes(df_orig, gap_intervals, gap_classes):
     df_orig = df_orig.copy()
@@ -1135,7 +1469,161 @@ def apply_best_method_by_class(df_result, best_methods, target_col):
     return df
 
 
-
+# def plot_metrics_by_interval(
+#         results,
+#         dataset,
+#         path_to_save,
+#         gap_prc,
+# ):
+#
+#     plt.rcParams["font.family"] = "DejaVu Sans"
+#
+#
+#
+#     COLORS = {
+#         "PFBGB": "#2CA02C",
+#         "AIM": "#D62728",
+#         "SKNN": "#1F77B4",
+#         "HDIRT": "#6F8FAF",
+#         "MEAN": "#A23B72",
+#         "MEAN_BETWEEN": "#F18F01",
+#         "KNN": "#9467BD",
+#         "LR": "#54A24B",
+#         "LAST": "#E45756",
+#         "NEXT": "#FF9896",
+#         "MEDIAN": "#72B7B2",
+#         "SMEAN": "#B279A2",
+#         "LINTER": "#9D755D",
+#         "XGB": "#8C564B",
+#         "POLYNOMIAL": "#BCBD22",
+#         "QUADRATIC": "#17BECF",
+#         "CUBIC": "#7F7F7F",
+#         "SPLINE": "#AEC7E8",
+#         "LINEAR": "#FFBB78",
+#         "CSBI": "#98DF8A",
+#         "RF": "#C5B0D5",
+#     }
+#
+#     translations = {
+#         "ru": {
+#             "interval": "Интервал",
+#             "error": "Ошибка",
+#             "title": f"Датасет - {dataset}\nДоля пропусков: {gap_prc}%. Медианные ошибки по интервалам",
+#             "file_suffix": "ru"
+#         },
+#         "en": {
+#             "interval": "Interval",
+#             "error": "Error",
+#             "title": f"Dataset - {dataset}\nMissing data share: {gap_prc}%. Median errors by intervals",
+#             "file_suffix": "en"
+#         }
+#     }
+#
+#     metrics = ["mae", "rmse", "mape"]
+#
+#     data = {r["method_name"]: r["df"] for r in results}
+#
+#     intervals = sorted(next(iter(data.values()))["interval"].unique())
+#
+#     os.makedirs(path_to_save, exist_ok=True)
+#
+#     for lang, text in translations.items():
+#
+#         fig = plt.figure(figsize=(18, 15))
+#         gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.4])
+#
+#         ax_mae = fig.add_subplot(gs[0, 0])
+#         ax_rmse = fig.add_subplot(gs[0, 1])
+#         ax_mape = fig.add_subplot(gs[1, :])
+#
+#         axes = {
+#             "mae": ax_mae,
+#             "rmse": ax_rmse,
+#             "mape": ax_mape
+#         }
+#
+#         for method, df in data.items():
+#
+#             df = df.sort_values("interval")
+#
+#             is_main = method in ["PFBGB", "AIM", "SKNN"]
+#
+#             for metric in metrics:
+#
+#                 axes[metric].plot(
+#                     df["interval"],
+#                     df[metric],
+#                     label=method,
+#                     color=COLORS.get(method, "#999999"),
+#                     linewidth=2.8 if method in ["PFBGB", "AIM"] else 2.2 if method == "SKNN" else 1.2,
+#                     linestyle="-" if is_main else "--",
+#                     marker="o",
+#                     markersize=6 if is_main else 3,
+#                     alpha=1.0 if is_main else 0.65,
+#                     zorder=5 if is_main else 2,
+#                 )
+#
+#         for metric, ax in axes.items():
+#
+#             ax.set_title(
+#                 metric.upper(),
+#                 fontsize=14
+#             )
+#
+#             ax.set_xlabel(
+#                 text["interval"],
+#                 fontsize=12
+#             )
+#
+#             ax.set_ylabel(
+#                 text["error"],
+#                 fontsize=12
+#             )
+#
+#             ax.set_xticks(intervals)
+#
+#             ax.grid(
+#                 True,
+#                 linestyle="--",
+#                 linewidth=0.5,
+#                 alpha=0.7
+#             )
+#
+#             ax.set_axisbelow(True)
+#
+#         handles, labels = ax_mae.get_legend_handles_labels()
+#
+#         fig.legend(
+#             handles,
+#             labels,
+#             loc="lower center",
+#             ncol=6,
+#             fontsize=10,
+#             frameon=False,
+#         )
+#
+#         fig.suptitle(
+#             text["title"],
+#             fontsize=16,
+#             y=0.98,
+#         )
+#
+#         fig.tight_layout(
+#             rect=[0, 0.05, 1, 0.95]
+#         )
+#
+#         file_name = (
+#             f"{dataset}_metrics_by_interval_{text['file_suffix']}.png"
+#             .replace(" ", "_")
+#         )
+#
+#         fig.savefig(
+#             os.path.join(path_to_save, file_name),
+#             dpi=300,
+#             bbox_inches="tight",
+#         )
+#
+#         plt.close(fig)
 
 def plot_metrics_by_interval(
         results,
@@ -1143,98 +1631,273 @@ def plot_metrics_by_interval(
         path_to_save,
         gap_prc,
 ):
+    import os
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import AutoMinorLocator
 
     plt.rcParams["font.family"] = "DejaVu Sans"
 
     COLORS = {
-        "AIM": "#1F77B4",
+        "PFBGB": "#2CA02C",
+        "AIM": "#D62728",
+        "SKNN": "#1F77B4",
         "HDIRT": "#6F8FAF",
         "MEAN": "#A23B72",
         "MEAN_BETWEEN": "#F18F01",
-        "SKNN": "#4C78A8",
-        "KNN": "#F58518",
+        "KNN": "#9467BD",
         "LR": "#54A24B",
         "LAST": "#E45756",
+        "NEXT": "#FF9896",
         "MEDIAN": "#72B7B2",
         "SMEAN": "#B279A2",
         "LINTER": "#9D755D",
-        "XGB": "#D62728",
-        "SFLXGB": "#2ca02c",
+        "XGB": "#8C564B",
+        "POLYNOMIAL": "#BCBD22",
+        "QUADRATIC": "#17BECF",
+        "CUBIC": "#7F7F7F",
+        "SPLINE": "#AEC7E8",
+        "LINEAR": "#FFBB78",
+        "CSBI": "#98DF8A",
+        "RF": "#C5B0D5",
     }
 
-    metrics = ["mae", "rmse", "mape"]
+    METHODS = [
+        "PFBGB",
+        "AIM",
+        "SKNN",
+        "HDIRT",
+        "XGB",
+        "RF",
+        "CSBI",
+        "KNN",
+        "LR",
+        "SMEAN",
+        "LINTER",
+        "LINEAR",
+        "MEAN",
+        "MEAN_BETWEEN",
+        "LAST",
+        "NEXT",
+        "MEDIAN",
+        "SPLINE",
+        "CUBIC",
+        "QUADRATIC",
+        "POLYNOMIAL"
+    ]
 
-    data = {r["method_name"]: r["df"] for r in results}
+    translations = {
+        "ru": {
+            "interval": "Интервал",
+            "error": "Ошибка",
+            "title": f"Датасет - {dataset}\nДоля пропусков: {gap_prc}%. Медианные ошибки по интервалам",
+            "file_suffix": "ru"
+        },
+        "en": {
+            "interval": "Interval",
+            "error": "Error",
+            "title": f"Dataset - {dataset}\nMissing data share: {gap_prc}%. Median errors by intervals",
+            "file_suffix": "en"
+        }
+    }
 
-    fig = plt.figure(figsize=(18, 15))
-    gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.4])
+    metrics = [
+        "mae",
+        "rmse",
+        "mape"
+    ]
 
-    ax_mae = fig.add_subplot(gs[0, 0])
-    ax_rmse = fig.add_subplot(gs[0, 1])
-    ax_mape = fig.add_subplot(gs[1, :])
+    main_methods = [
+        "PFBGB",
+        "AIM",
+        "SKNN"
+    ]
 
-    axes = {"mae": ax_mae, "rmse": ax_rmse, "mape": ax_mape}
+    data = {
+        r["method_name"]: r["df"].sort_values("interval")
+        for r in results
+    }
 
-    intervals = sorted(next(iter(data.values()))["interval"].unique())
+    methods = [
+        method
+        for method in METHODS
+        if method in data
+    ]
 
-    for method, df in data.items():
-        df = df.sort_values("interval")
+    intervals = sorted(
+        next(iter(data.values()))["interval"].unique()
+    )
 
-        is_aim = method == "SFLXGB"
+    os.makedirs(
+        path_to_save,
+        exist_ok=True
+    )
 
-        for metric in metrics:
-            axes[metric].plot(
-                df["interval"],
-                df[metric],
-                label=method,
-                color=COLORS.get(method, "#999999"),
-                linewidth=1.8 if is_aim else 2.2,
-                marker="o",
-                markersize=6 if is_aim else 4,
-                alpha=1.0 if is_aim else 0.7,
-                zorder=5 if is_aim else 2,
+    for lang, text in translations.items():
+
+        fig = plt.figure(
+            figsize=(20, 15)
+        )
+
+        gs = fig.add_gridspec(
+            2,
+            2,
+            height_ratios=[
+                1,
+                1.3
+            ],
+            hspace=0.35
+        )
+
+        axes = {
+            "mae": fig.add_subplot(gs[0, 0]),
+            "rmse": fig.add_subplot(gs[0, 1]),
+            "mape": fig.add_subplot(gs[1, :])
+        }
+
+        for metric, ax in axes.items():
+
+            x = np.arange(
+                len(intervals)
             )
 
-    for metric, ax in axes.items():
-        ax.set_title(metric.upper(), fontsize=14)
-        ax.set_xlabel("Интервал", fontsize=12)
-        ax.set_ylabel("Ошибка", fontsize=12)
+            total_methods = len(methods)
 
-        ax.set_xticks(intervals)
-        ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
-        ax.set_axisbelow(True)
+            bar_width = 0.8 / total_methods
 
-    handles, labels = ax_mae.get_legend_handles_labels()
+            for idx, method in enumerate(methods):
 
-    fig.legend(
-        handles,
-        labels,
-        loc="lower center",
-        ncol=6,
-        fontsize=10,
-        frameon=False,
-    )
+                df = data[method]
 
-    fig.suptitle(
-        f"Датасет - {dataset}\nДоля пропусков: {gap_prc}%. Медианные ошибки по интервалам",
-        fontsize=16,
-        y=0.98,
-    )
+                values = (
+                    df.set_index("interval")
+                    .reindex(intervals)[metric]
+                    .values
+                )
 
-    fig.tight_layout(rect=[0, 0.05, 1, 0.95])
+                positions = (
+                        x
+                        - 0.4
+                        + idx * bar_width
+                        + bar_width / 2
+                )
 
-    os.makedirs(path_to_save, exist_ok=True)
+                is_main = method in main_methods
 
-    file_name = f"{dataset}_metrics_by_interval.png".replace(" ", "_")
+                ax.bar(
+                    positions,
+                    values,
+                    width=bar_width * (
+                        1.15 if is_main else 0.9
+                    ),
+                    label=method,
+                    color=COLORS.get(
+                        method,
+                        "#999999"
+                    ),
+                    alpha=(
+                        1.0
+                        if is_main
+                        else 0.55
+                    ),
+                    edgecolor="none",
+                    linewidth=0,
+                    zorder=3 if is_main else 2
+                )
 
-    fig.savefig(
-        os.path.join(path_to_save, file_name),
-        dpi=300,
-        bbox_inches="tight",
-    )
+            ax.set_title(
+                metric.upper(),
+                fontsize=14
+            )
 
-    plt.close(fig)
+            ax.set_xlabel(
+                text["interval"],
+                fontsize=12
+            )
 
+            ax.set_ylabel(
+                text["error"],
+                fontsize=12
+            )
+
+            ax.set_xticks(
+                x
+            )
+
+            ax.set_xticklabels(
+                intervals
+            )
+
+            ax.grid(
+                True,
+                axis="both",
+                which="major",
+                linestyle="--",
+                linewidth=0.5,
+                alpha=0.7
+            )
+
+            ax.yaxis.set_minor_locator(
+                AutoMinorLocator(2)
+            )
+
+            ax.grid(
+                True,
+                axis="y",
+                which="minor",
+                linestyle=":",
+                linewidth=0.4,
+                alpha=0.5
+            )
+
+            ax.set_axisbelow(
+                True
+            )
+
+        handles, labels = axes["mae"].get_legend_handles_labels()
+
+        fig.legend(
+            handles,
+            labels,
+            loc="lower center",
+            ncol=6,
+            fontsize=10,
+            frameon=False
+        )
+
+        fig.suptitle(
+            text["title"],
+            fontsize=16,
+            y=0.98
+        )
+
+        fig.tight_layout(
+            rect=[
+                0,
+                0.05,
+                1,
+                0.95
+            ]
+        )
+
+        file_name = (
+            f"{dataset}_metrics_bar_by_interval_{text['file_suffix']}.png"
+            .replace(
+                " ",
+                "_"
+            )
+        )
+
+        fig.savefig(
+            os.path.join(
+                path_to_save,
+                file_name
+            ),
+            dpi=300,
+            bbox_inches="tight"
+        )
+
+        plt.close(fig)
 
 def weighted_imputation(df_result, methods, col_target):
     import numpy as np
@@ -1371,12 +2034,6 @@ def compute_imputation_metrics(
     )
 
 
-# def prepare(df):
-#     df = df.copy()
-#     df = df.sort_index()
-#     df = df[~df.index.duplicated(keep="first")]
-#     return df
-
 
 def safe_interp(df, col_target, method, order=None):
     s = df[col_target]
@@ -1394,6 +2051,7 @@ def safe_interp(df, col_target, method, order=None):
         arr = np.resize(arr, len(df))
 
     return arr
+
 
 def extract_features(window):
     last = window[-1]
@@ -1467,6 +2125,7 @@ def build_feature_matrix(df, col_target):
 
     return X, y, feature_cols
 
+
 def cosine_beta_schedule(T):
     steps = T + 1
     x = np.linspace(0, steps, steps)
@@ -1474,6 +2133,7 @@ def cosine_beta_schedule(T):
     alphas_cumprod = alphas_cumprod / alphas_cumprod[0]
     betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
     return np.clip(betas, 1e-5, 0.999)
+
 
 def split_sequence(sequence, n_steps):
 
@@ -1513,6 +2173,7 @@ def make_predictions(x_input, x_future, n_features, model, lag, count_pred_point
 
     return predict_values
 
+
 def make_predictions_bidirectional(x_inputs, model):
 
     x_inputs = np.asarray(x_inputs, dtype=np.float32)
@@ -1549,6 +2210,7 @@ def create_bidirectional_inputs(df, use_features, gap_indices, lag_before=25, la
         np.asarray(valid_indices)
     )
 
+
 def build_gap_windows_bidirectional(df, df_prefill, col_target):
 
     df = df.copy().sort_index()
@@ -1580,6 +2242,7 @@ def build_gap_windows_bidirectional(df, df_prefill, col_target):
         })
 
     return result
+
 
 def build_gap_windows(df, df_prefill, col_target, lag=10):
 
@@ -1643,6 +2306,7 @@ def build_gap_windows(df, df_prefill, col_target, lag=10):
 
     return result
 
+
 def split_sequence_bidirectional(values, lag_before=25, lag_after=25):
 
     X = []
@@ -1659,3 +2323,145 @@ def split_sequence_bidirectional(values, lag_before=25, lag_after=25):
         y.append(values[i, 0])
 
     return np.asarray(X), np.asarray(y)
+
+
+def _window_statistics(values):
+    if len(values) == 0:
+        return [
+            0,
+            0,
+            0,
+            0,
+            0
+        ]
+
+    x = values[:, 0]
+
+    trend = np.polyfit(
+        np.arange(len(x)),
+        x,
+        1
+    )[0] if len(x) > 1 else 0
+
+    return [
+        np.mean(x),
+        np.std(x),
+        np.min(x),
+        np.max(x),
+        trend
+    ]
+
+
+def _get_gap_info(target):
+    gaps = {}
+
+    nan_indices = np.where(np.isnan(target))[0]
+
+    if len(nan_indices) == 0:
+        return gaps
+
+    start = nan_indices[0]
+    prev = nan_indices[0]
+
+    for idx in nan_indices[1:]:
+        if idx != prev + 1:
+            length = prev - start + 1
+
+            for pos, value in enumerate(range(start, prev + 1)):
+                gaps[value] = {
+                    "gap_length": length,
+                    "position": pos,
+                    "left_distance": pos,
+                    "right_distance": length - pos - 1
+                }
+
+            start = idx
+
+        prev = idx
+
+    length = prev - start + 1
+
+    for pos, value in enumerate(range(start, prev + 1)):
+        gaps[value] = {
+            "gap_length": length,
+            "position": pos,
+            "left_distance": pos,
+            "right_distance": length - pos - 1
+        }
+
+    return gaps
+
+
+def _build_window_features(
+        values,
+        center,
+        lag_before,
+        lag_after,
+        gap_info=None
+):
+    features = []
+
+    left = values[
+           center - lag_before:center
+           ]
+
+    right = values[
+            center + 1:center + lag_after + 1
+            ]
+
+    features.extend(left.reshape(-1))
+    features.extend(right.reshape(-1))
+
+    features.extend(
+        _window_statistics(left)
+    )
+
+    features.extend(
+        _window_statistics(right)
+    )
+
+    long_lags = [
+        24,
+        48,
+        168
+    ]
+
+    for lag in long_lags:
+
+        if center - lag >= 0:
+            features.append(
+                values[center - lag, 0]
+            )
+        else:
+            features.append(0)
+
+        if center + lag < len(values):
+            features.append(
+                values[center + lag, 0]
+            )
+        else:
+            features.append(0)
+
+    if gap_info is not None:
+        features.extend(
+            [
+                gap_info["gap_length"],
+                gap_info["position"],
+                gap_info["left_distance"],
+                gap_info["right_distance"]
+            ]
+        )
+    else:
+        features.extend(
+            [
+                0,
+                0,
+                0,
+                0
+            ]
+        )
+
+    return np.asarray(
+        features,
+        dtype=np.float32
+    )

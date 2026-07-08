@@ -22,10 +22,10 @@
 
 
 datasets_csv_dict = {
-    "Australia Bundoora": {
+    "Australia_Bundoora": {
         "csv_link": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTl3ZMKUEqYeXJe1b8A4IbfYIKjWlm0lR61glDoXOEfHxsmDUv1ZZ2IK2GpjkH2fZ6fvX3NaCOryqzW/pub?gid=751874949&single=true&output=csv",
-        "col_time": None,
-        "col_target": None,
+        "col_time": "Datetime",
+        "col_target": "consumption",
     },
     "Australia Albury-Wodonga": {
         "csv_link": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQmRJCXCBp-qsY4LQrf8x_zJax_5FAnZDl6-sv1zje9m0pCM7hore-cjS3zlzJezgHIm6h81KY1hsEz/pub?gid=1184660391&single=true&output=csv",
@@ -39,8 +39,8 @@ datasets_csv_dict = {
     },
     "morocco_zone_1": {
         "csv_link": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgwB47qVFZcr1Aq--UWxZ6fDi9CGLZm-1i8QoMgfdaHUbV8EqSli3ayPxYYxD8kqfYYHD41uuNxbjZ/pub?gid=1952392108&single=true&output=csv",
-        "col_time": None,
-        "col_target": None,
+        "col_time": "Datetime",
+        "col_target": "consumption",
     },
     "Morocco Zone 2": {
         "csv_link": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQT1DfqAB5Yec8MIQ_E5A8w-SXNcRmTwbXsv2W-ZT1ZcXN_G83BHlb6QBgnWkO-MpH3oVgfLoE0SnLx/pub?gid=1952392108&single=true&output=csv",

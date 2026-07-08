@@ -15,21 +15,32 @@ from src.processing.data_processing import (
     apply_best_method_by_class, hdirt_fallback, build_training_data,
     get_lag_vector, add_additional_features, build_feature_matrix, cosine_beta_schedule,
     split_sequence, create_x_input, make_predictions, build_gap_windows, split_sequence_bidirectional,
-create_bidirectional_inputs, make_predictions_bidirectional, build_gap_windows_bidirectional
+create_bidirectional_inputs, make_predictions_bidirectional, build_gap_windows_bidirectional,
+    _window_statistics, _get_gap_info, _build_window_features
+
 
 )
 
 
 DEFAULT_XGB_PARAMS = {
     "max_depth": 4,
-    "n_estimators": 1500,
-    "subsample": 1.0,
+    "n_estimators": 1000,
+    "learning_rate": 0.01,
+
+    "subsample": 0.85,
     "colsample_bytree": 0.8,
-    "min_child_weight": 7,
+
+    "min_child_weight": 5,
     "gamma": 0.0,
-    "reg_alpha": 0.0,
+
+    "reg_alpha": 0.1,
+    "reg_lambda": 5.0,
+
     "booster": "gbtree",
-    "objective": "reg:squarederror"
+    "objective": "reg:squarederror",
+
+    "tree_method": "hist",
+    "random_state": 42
 }
 
 DEFAULT_RF_PARAMS = {
@@ -43,151 +54,6 @@ DEFAULT_RF_PARAMS = {
     "n_jobs": -1
 }
 
-
-class DiffusionMLP(nn.Module):
-    def __init__(self, input_dim, hidden=128):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(input_dim + 1, hidden),
-            nn.ReLU(),
-            nn.Linear(hidden, hidden),
-            nn.ReLU(),
-            nn.Linear(hidden, input_dim)
-        )
-
-    def forward(self, x, t):
-        t = t.float().unsqueeze(1)
-        x = torch.cat([x, t], dim=1)
-        return self.net(x)
-
-
-def SFLXDIFF_imputation(df, col_target, lag=100, T=50, lr=1e-3, epochs=20):
-    df = df.copy().sort_index()
-    values = df[col_target].astype(float).values
-
-    def build_dataset(values, lag):
-        X = []
-        for i in range(lag, len(values)):
-            if np.isnan(values[i]):
-                continue
-            window = values[i - lag:i]
-            if np.isnan(window).any():
-                continue
-            X.append(window)
-        return np.array(X)
-
-    data = build_dataset(values, lag)
-
-    if len(data) < 10:
-        return df
-
-    device = torch.device("cpu")
-    model = DiffusionMLP(lag).to(device)
-
-    betas = cosine_beta_schedule(T)
-    alphas = 1 - betas
-    alphas_cumprod = np.cumprod(alphas)
-
-    opt = optim.Adam(model.parameters(), lr=lr)
-    loss_fn = nn.MSELoss()
-
-    X = torch.tensor(data, dtype=torch.float32)
-
-    for _ in range(epochs):
-        idx = torch.randint(0, len(X), (32,))
-        x0 = X[idx]
-
-        t = torch.randint(0, T, (x0.shape[0],))
-        noise = torch.randn_like(x0)
-
-        alpha_t = torch.tensor(alphas_cumprod[t]).unsqueeze(1)
-        xt = torch.sqrt(alpha_t) * x0 + torch.sqrt(1 - alpha_t) * noise
-
-        pred_noise = model(xt, t.float())
-        loss = loss_fn(pred_noise, noise)
-
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
-
-    values_filled = values.copy()
-
-    for i in range(len(values_filled)):
-        if not np.isnan(values_filled[i]):
-            continue
-
-        if i - lag < 0:
-            continue
-
-        window = values_filled[i - lag:i]
-
-        if np.isnan(window).any():
-            continue
-
-        x = torch.tensor(window, dtype=torch.float32).unsqueeze(0)
-
-        x_t = torch.randn_like(x)
-
-        for t in reversed(range(T)):
-            t_tensor = torch.tensor([t], dtype=torch.float32)
-            eps = model(x_t, t_tensor)
-
-            alpha = alphas[t]
-            alpha_cum = alphas_cumprod[t]
-
-            x0_pred = (x_t - np.sqrt(1 - alpha_cum) * eps) / np.sqrt(alpha_cum)
-
-            if t > 0:
-                noise = torch.randn_like(x_t)
-                x_t = np.sqrt(alpha) * x0_pred + np.sqrt(1 - alpha) * noise
-            else:
-                x_t = x0_pred
-
-        values_filled[i] = x_t.detach().numpy()[0, -1]
-
-    df[col_target] = values_filled
-    return df
-
-
-# def SFLXGB_imputation(df, col_target, lag=10, window_years=3, params=None):
-#     params = params or DEFAULT_XGB_PARAMS
-#
-#     df = df.copy().sort_index()
-#     df_feat = add_additional_features(df)
-#
-#     X_train, y_train, feature_cols = build_feature_matrix(df_feat, col_target)
-#
-#     mask = ~np.isnan(y_train)
-#     X_train = X_train[mask]
-#     y_train = y_train[mask]
-#
-#     if len(X_train) < 10:
-#         return df
-#
-#     model = XGBRegressor(**params)
-#     model.fit(X_train, y_train)
-#
-#     values = df_feat[col_target].astype(float).values
-#
-#     for i in range(len(values)):
-#
-#         if not np.isnan(values[i]):
-#             continue
-#
-#         x = X_train[i:i+1]
-#
-#         if x.shape[1] == X_train.shape[1]:
-#             values[i] = model.predict(x)[0]
-#             continue
-#
-#         fallback = hdirt_fallback(df_feat, values, i, window_years)
-#
-#         if fallback is not None:
-#             values[i] = fallback
-#
-#     df[col_target] = values
-#
-#     return df
 
 
 def SFLXGB_imputation( col_target, df, lag=50, params=None):
@@ -298,7 +164,12 @@ def SFLXGB_imputation( col_target, df, lag=50, params=None):
     return df
 
 
-def PFBGB_imputation(col_target, df, lag=100, params=None):
+def PFBGB_imputation(
+        col_target,
+        df,
+        lag=20,
+        params=None
+):
 
     col_for_train = [
         "year",
@@ -321,65 +192,222 @@ def PFBGB_imputation(col_target, df, lag=100, params=None):
 
     df = df.copy()
 
-    df_SKNN_filled = SKNN_imputation(
+    df_train = add_additional_features(
+        df.copy()
+    ).sort_index()
+
+
+    use_features = [
+                       col_target
+                   ] + col_for_train
+
+
+    values = (
+        df_train[use_features]
+        .astype(np.float32)
+        .values
+    )
+
+
+    target = df_train[col_target].values
+
+
+    valid_mask = ~np.isnan(target)
+
+
+    segments = []
+
+    start = None
+
+    for i, valid in enumerate(valid_mask):
+
+        if valid:
+
+            if start is None:
+                start = i
+
+        else:
+
+            if start is not None:
+                segments.append(
+                    (
+                        start,
+                        i
+                    )
+                )
+                start = None
+
+
+    if start is not None:
+        segments.append(
+            (
+                start,
+                len(target)
+            )
+        )
+
+
+    X_train = []
+    y_train = []
+
+
+    for start, end in segments:
+
+        if end - start < lag_before + lag_after + 1:
+            continue
+
+
+        for center in range(
+                start + lag_before,
+                end - lag_after
+        ):
+
+            x = _build_window_features(
+                values,
+                center,
+                lag_before,
+                lag_after
+            )
+
+            X_train.append(x)
+
+            y_train.append(
+                values[center, 0]
+            )
+
+
+    if len(X_train) == 0:
+        return df
+
+
+    X_train = np.asarray(
+        X_train,
+        dtype=np.float32
+    )
+
+    y_train = np.asarray(
+        y_train,
+        dtype=np.float32
+    )
+
+
+    model = XGBRegressor(
+        n_estimators=params.get(
+            "n_estimators",
+            1000
+        ),
+        learning_rate=params.get(
+            "learning_rate",
+            0.03
+        ),
+        max_depth=params.get(
+            "max_depth",
+            6
+        ),
+        min_child_weight=params.get(
+            "min_child_weight",
+            5
+        ),
+        subsample=params.get(
+            "subsample",
+            0.8
+        ),
+        colsample_bytree=params.get(
+            "colsample_bytree",
+            0.8
+        ),
+        reg_alpha=params.get(
+            "reg_alpha",
+            0.1
+        ),
+        reg_lambda=params.get(
+            "reg_lambda",
+            3
+        ),
+        objective="reg:squarederror",
+        n_jobs=1,
+        random_state=42
+    )
+
+
+    model.fit(
+        X_train,
+        y_train
+    )
+
+
+    df_fill = SKNN_imputation(
         df=df,
         col_target=col_target
     )
 
-    df_SKNN_filled = add_additional_features(df_SKNN_filled)
-    df_SKNN_filled = df_SKNN_filled.sort_index()
 
-    if col_for_train is None:
-        col_for_train = []
+    df_fill = add_additional_features(
+        df_fill
+    ).sort_index()
 
-    use_features = [col_target] + list(col_for_train)
 
-    df_SKNN_filled = df_SKNN_filled[use_features].copy()
-
-    if df_SKNN_filled.isna().any().any():
-        raise ValueError("NaN values detected in training data")
-
-    values = df_SKNN_filled.astype(np.float32).values
-
-    X, y = split_sequence_bidirectional(
-        values,
-        lag_before=lag_before,
-        lag_after=lag_after
+    values_fill = (
+        df_fill[use_features]
+        .astype(np.float32)
+        .values
     )
 
-    X = X.reshape(len(X), -1).astype(np.float32)
-    y = y.astype(np.float32)
 
-    model = XGBRegressor(
-        n_estimators=params["n_estimators"],
-        max_depth=params["max_depth"],
-        n_jobs=1,
-        objective="reg:squarederror"
+    gap_info = _get_gap_info(
+        df[col_target].values
     )
 
-    model.fit(X, y)
 
-    gap_indices = np.where(df[col_target].isna())[0]
+    X_pred = []
+    valid_indices = []
 
-    x_inputs, valid_indices = create_bidirectional_inputs(
-        df=df_SKNN_filled,
-        gap_indices=gap_indices,
-        use_features=use_features,
-        lag_before=lag_before,
-        lag_after=lag_after
-    )
 
-    if len(x_inputs) == 0:
+    for idx in gap_info:
+
+        if idx < lag_before:
+            continue
+
+        if idx + lag_after >= len(values_fill):
+            continue
+
+
+        x = _build_window_features(
+            values_fill,
+            idx,
+            lag_before,
+            lag_after,
+            gap_info[idx]
+        )
+
+
+        X_pred.append(x)
+
+        valid_indices.append(idx)
+
+
+    if len(X_pred) == 0:
         return df
 
-    predict_values = model.predict(
-        x_inputs.reshape(len(x_inputs), -1)
+
+    X_pred = np.asarray(
+        X_pred,
+        dtype=np.float32
     )
 
-    df.iloc[valid_indices, df.columns.get_loc(col_target)] = predict_values
+
+    pred = model.predict(
+        X_pred
+    )
+
+
+    df.iloc[
+        valid_indices,
+        df.columns.get_loc(col_target)
+    ] = pred
+
 
     return df
-
 
 def PFBRF_imputation(col_target, df, lag=100, params=None):
 
@@ -583,7 +611,12 @@ def XGB_imputation(df, col_target, params=None):
     if len(X_train) < 10:
         return df
 
-    model = XGBRegressor(**params)
+    model = XGBRegressor(
+        n_estimators=params["n_estimators"],
+        max_depth=params["max_depth"],
+        n_jobs=1,
+        objective="reg:squarederror"
+    )
     model.fit(np.array(X_train, dtype=np.float32), np.array(y_train, dtype=np.float32))
 
     for i in range(1, len(values)):
@@ -749,51 +782,15 @@ def SKNN_imputation(df, col_target='P_l', k=3, time_window_years=3):
     return prefilled_df
 
 
-def KNN_imputation(df, col_target='P_l', k=3, time_window_years=3):
+def KNN_imputation(df, col_target="P_l", k=3):
 
-    filled_df = df.copy()
-    filled_df = filled_df.sort_index()
+    filled_df = df.copy().sort_index()
 
-    index = filled_df.index
-
-    missing_data = []
-    missing_indices = []
-
-    for time_point in tqdm(filled_df[filled_df[col_target].isna()].index, desc="Preparing data"):
-
-        row = []
-
-        # берем лаги по времени как признаки (как в SKNN)
-        for i in range(1, time_window_years + 1):
-
-            prev_time = time_point - pd.DateOffset(years=i)
-
-            if prev_time in index:
-                val = filled_df.loc[prev_time, col_target]
-
-                if isinstance(val, pd.Series):
-                    val = val.iloc[0]
-
-                row.append(val)
-            else:
-                row.append(np.nan)
-
-        # добавляем таргет как последний столбец
-        row.append(np.nan)
-
-        missing_data.append(row)
-        missing_indices.append(time_point)
-
-    if not missing_data:
-        return filled_df
-
-    imputer = KNNImputer(n_neighbors=k)
-
-    filled_data = imputer.fit_transform(missing_data)
-
-    for i, idx in tqdm(enumerate(missing_indices), desc="Applying KNN imputation"):
-
-        filled_df.at[idx, col_target] = filled_data[i, -1]
+    filled_df[col_target] = (
+        KNNImputer(n_neighbors=k)
+        .fit_transform(filled_df[[col_target]])
+        .ravel()
+    )
 
     return filled_df
 
@@ -892,6 +889,16 @@ def LAST_imputation(df, col_target):
     df_init_filled_LR[col_target] = df_init_filled_LR[col_target].ffill()
 
     return df_init_filled_LR
+
+
+def NEXT_imputation(df, col_target):
+
+    df_init_filled = df.copy()
+    df_init_filled = df_init_filled.sort_index()
+
+    df_init_filled[col_target] = df_init_filled[col_target].bfill()
+
+    return df_init_filled
 
 
 def MEDIAN_imputation(df, col_target):
@@ -1038,6 +1045,7 @@ def AIM_imputation(df, col_time, col_target):
     start_date = df_without_nan[col_time].iloc[3]
     start_date = pd.to_datetime(start_date)
 
+
     df_orig, df_test_with_gaps, drop_indexes = AIM_create_test_nan(
         initial_df=df_without_nan, test_start_date=start_date,
         percent_gaps=gap_percent, col_time=col_time, target_value=col_target, intervals=intervals_init, gap_classes=gap_classes,
@@ -1056,7 +1064,7 @@ def AIM_imputation(df, col_time, col_target):
     drop_cols = ["interval", "is_droped", "gap_classes"]
 
     imputation_methods = {
-        "SFLXRF": SFLXRF_imputation,
+        "PFBGB": PFBGB_imputation,
         "HDIRT": HDIRT_imputation,
         "MEAN": MEAN_imputation,
         "MEAN_BETWEEN": MEAN_BETWEEN_imputation,
@@ -1064,11 +1072,11 @@ def AIM_imputation(df, col_time, col_target):
         "KNN": KNN_imputation,
         "LR": LR_imputation,
         "LAST": LAST_imputation,
+        "NEXT": NEXT_imputation,
         "MEDIAN": MEDIAN_imputation,
         "SMEAN": SMEAN_imputation,
         "LINTER": LINTER_imputation,
         "XGB": XGB_imputation,
-        "SFLXGB": SFLXGB_imputation,
         "POLYNOMIAL": POLYNOMIAL_imputation,
         "QUADRATIC": QUADRATIC_imputation,
         "CUBIC": CUBIC_imputation,
@@ -1081,6 +1089,8 @@ def AIM_imputation(df, col_time, col_target):
     filled_dfs = []
 
     for name, method in imputation_methods.items():
+        log = f"AIM works | Current method - {name}"
+        print(log)
         try:
             df = method(df=df_test_with_gaps, col_target=col_target)
             last_s = f"LAST SUCSSES METHOD - {name} | index_type: {type(df.index)} | columns: {list(df.columns)} | dtypes: {df.dtypes.to_dict()} | df_info: {df.info()}"
@@ -1147,3 +1157,5 @@ def AIM_imputation(df, col_time, col_target):
     df_result = df_result[cols_to_chose]
 
     return df_result
+
+

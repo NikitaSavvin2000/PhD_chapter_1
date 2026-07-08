@@ -18,9 +18,9 @@ from src.methods.imputation_methods import (
     AIM_imputation, HDIRT_imputation, LR_imputation, SKNN_imputation,
     KNN_imputation, MEAN_BETWEEN_imputation, MEAN_imputation,
     LAST_imputation, MEDIAN_imputation, SMEAN_imputation,
-    LINTER_imputation, XGB_imputation, SFLXGB_imputation, POLYNOMIAL_imputation,
+    LINTER_imputation, XGB_imputation, POLYNOMIAL_imputation,
     QUADRATIC_imputation, CUBIC_imputation, SPLINE_imputation, LINEAR_imputation,
-    CSBI_imputation, SFLXRF_imputation, RF_imputation, SFLXDIFF_imputation
+    CSBI_imputation, NEXT_imputation, RF_imputation, PFBGB_imputation, NEXT_imputation
 )
 
 from src.utils.logger import get_logger
@@ -34,7 +34,7 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 WORKERS = 1
 
-EXPERIMENT_NAME = "test_9"
+EXPERIMENT_NAME = "prod_test"
 
 home = os.getcwd()
 experiment_path = os.path.join(home, "export",  EXPERIMENT_NAME)
@@ -56,6 +56,8 @@ experiment_count = 1
 
 
 def run_experiment(row_exp):
+
+
     try:
         dataset = row_exp["dataset"]
         csv_link = row_exp["csv_link"]
@@ -70,12 +72,11 @@ def run_experiment(row_exp):
         experiment_list = list(range(experiment_count))
 
         df_all_values = pd.read_csv(csv_link)
+        print(df_all_values)
         df_all_values[col_time] = pd.to_datetime(df_all_values[col_time])
 
         df_all_values = df_all_values[[col_time, col_target]]
         df_all_values = df_all_values.drop_duplicates(subset=[col_time], keep="first")
-
-
 
         df_all_values[col_target] = (
                                             df_all_values[col_target] - df_all_values[col_target].min()
@@ -112,17 +113,15 @@ def run_experiment(row_exp):
         SMEAN_mean_metrics_list = []
         LINTER_mean_metrics_list = []
         XGB_mean_metrics_list = []
-        SFLXGB_mean_metrics_list = []
+        PFBGB_mean_metrics_list = []
         POLYNOMIAL_mean_metrics_list = []
         QUADRATIC_mean_metrics_list = []
         CUBIC_mean_metrics_list = []
         SPLINE_mean_metrics_list = []
         LINEAR_mean_metrics_list = []
         CSBI_mean_metrics_list = []
-        SFLXRF_mean_metrics_list = []
+        NEXT_mean_metrics_list = []
         RF_mean_metrics_list = []
-
-        SFLXDIFF_mean_metrics_list = []
 
         for experiment in experiment_list:
 
@@ -161,8 +160,9 @@ def run_experiment(row_exp):
 
                 gap_percent = round(df_test_with_gaps[col_target].isna().mean() * 100)
 
-
                 df_AIM_res = AIM_imputation(df=df_test_with_gaps, col_time=col_time, col_target=col_target)
+
+                print(df_AIM_res)
 
                 df_only_gaps = df_orig.loc[drop_indexes]
 
@@ -386,15 +386,15 @@ def run_experiment(row_exp):
                 )
                 CSBI_mean_metrics_list.append(CSBI_metrics)
 
-                df_SFLXRF_res = SFLXRF_imputation(df=df_test_with_gaps, col_target=col_target)
-                SFLXRF_metrics = compute_imputation_metrics(
-                    df_imputed=df_SFLXRF_res,
+                df_NEXT_res = NEXT_imputation(df=df_test_with_gaps, col_target=col_target)
+                NEXT_metrics = compute_imputation_metrics(
+                    df_imputed=df_NEXT_res,
                     df_orig=df_orig,
                     col_target=col_target,
-                    col_prefix="SFLXRF",
+                    col_prefix="NEXT",
                     metrics_func=regression_metrics_by_interval,
                 )
-                SFLXRF_mean_metrics_list.append(SFLXRF_metrics)
+                NEXT_mean_metrics_list.append(NEXT_metrics)
 
 
                 df_RF_res = RF_imputation(df=df_test_with_gaps, col_target=col_target)
@@ -408,49 +408,38 @@ def run_experiment(row_exp):
                 RF_mean_metrics_list.append(RF_metrics)
 
 
-                # df_SFLXDIFF_res = SFLXDIFF_imputation(df=df_test_with_gaps, col_target=col_target)
-                # SFLXDIFF_metrics = compute_imputation_metrics(
-                #     df_imputed=df_SFLXDIFF_res,
-                #     df_orig=df_orig,
-                #     col_target=col_target,
-                #     col_prefix="SFLXDIFF",
-                #     metrics_func=regression_metrics_by_interval,
-                # )
-                # SFLXDIFF_mean_metrics_list.append(SFLXDIFF_metrics)
-
-
-                df_SFLXGB_res = SFLXGB_imputation(df=df_test_with_gaps, col_target=col_target)
-                SFLXGB_metrics = compute_imputation_metrics(
-                    df_imputed=df_SFLXGB_res,
+                df_PFBGB_res = PFBGB_imputation(df=df_test_with_gaps, col_target=col_target)
+                PFBGB_metrics = compute_imputation_metrics(
+                    df_imputed=df_PFBGB_res,
                     df_orig=df_orig,
                     col_target=col_target,
-                    col_prefix="SFLXGB",
+                    col_prefix="PFBGB",
                     metrics_func=regression_metrics_by_interval,
                 )
-                SFLXGB_mean_metrics_list.append(SFLXGB_metrics)
+                PFBGB_mean_metrics_list.append(PFBGB_metrics)
 
 
-                df_SFLXGB = df_SFLXGB_res.copy()
-                df_SFLXGB = df_SFLXGB.rename(columns={col_target:f"SFLXGB_{col_target}"})
+                df_PFBGB = df_PFBGB_res.copy()
+                df_PFBGB = df_PFBGB.rename(columns={col_target:f"PFBGB_{col_target}"})
 
-                df_SFLXGB = df_SFLXGB.drop(columns=["interval",  "is_droped"])
-                df_SFLXGB_test = pd.concat(
+                df_PFBGB = df_PFBGB.drop(columns=["interval",  "is_droped"])
+                df_PFBGB_test = pd.concat(
                     [
                         df_orig,
-                        df_SFLXGB,
+                        df_PFBGB,
                     ],
                     axis=1
                 )
-                df_SFLXGB_test = df_SFLXGB_test[df_SFLXGB_test["is_droped"] == True]
+                df_PFBGB_test = df_PFBGB_test[df_PFBGB_test["is_droped"] == True]
 
                 plot_distributions_error(
-                    df=df_SFLXGB_test,
+                    df=df_PFBGB_test,
                     dataset=dataset,
                     path_to_save=path_to_save,
                     gap_prc=gap_prc,
                     experiment=experiment,
                     col_target=col_target,
-                    name="SFLXGB"
+                    name="PFBGB"
                 )
             except Exception as e:
                 log_error = f"{exp_info} | ERROR - {e}"
@@ -494,8 +483,8 @@ def run_experiment(row_exp):
             df_XGB = pd.concat(XGB_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
             df_XGB = df_XGB.groupby("interval", as_index=False).median(numeric_only=True)
 
-            df_SFLXGB = pd.concat(SFLXGB_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
-            df_SFLXGB = df_SFLXGB.groupby("interval", as_index=False).median(numeric_only=True)
+            df_PFBGB = pd.concat(PFBGB_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
+            df_PFBGB = df_PFBGB.groupby("interval", as_index=False).median(numeric_only=True)
 
             df_POLYNOMIAL = pd.concat(POLYNOMIAL_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
             df_POLYNOMIAL = df_POLYNOMIAL.groupby("interval", as_index=False).median(numeric_only=True)
@@ -515,14 +504,12 @@ def run_experiment(row_exp):
             df_CSBI = pd.concat(CSBI_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
             df_CSBI = df_CSBI.groupby("interval", as_index=False).median(numeric_only=True)
 
-            df_SFLXRF = pd.concat(SFLXRF_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
-            df_SFLXRF = df_SFLXRF.groupby("interval", as_index=False).median(numeric_only=True)
+            df_NEXT = pd.concat(NEXT_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
+            df_NEXT = df_NEXT.groupby("interval", as_index=False).median(numeric_only=True)
 
             df_RF = pd.concat(RF_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
             df_RF = df_RF.groupby("interval", as_index=False).median(numeric_only=True)
-            #
-            # df_SFLXDIFF = pd.concat(SFLXDIFF_mean_metrics_list, ignore_index=True).replace([np.inf, -np.inf], np.nan)
-            # df_SFLXDIFF = df_SFLXDIFF.groupby("interval", as_index=False).median(numeric_only=True)
+
 
             results = [
                 {"method_name": "AIM", "df": df_AIM_median},
@@ -537,16 +524,15 @@ def run_experiment(row_exp):
                 {"method_name": "SMEAN", "df": df_SMEAN},
                 {"method_name": "LINTER", "df": df_LINTER},
                 {"method_name": "XGB", "df": df_XGB},
-                {"method_name": "SFLXGB", "df": df_SFLXGB},
+                {"method_name": "PFBGB", "df": df_PFBGB},
                 {"method_name": "POLYNOMIAL", "df": df_POLYNOMIAL},
                 {"method_name": "QUADRATIC", "df": df_QUADRATIC},
                 {"method_name": "CUBIC", "df": df_CUBIC},
                 {"method_name": "SPLINE", "df": df_SPLINE},
                 {"method_name": "LINEAR", "df": df_LINEAR},
                 {"method_name": "CSBI", "df": df_CSBI},
-                {"method_name": "SFLXRF", "df": df_SFLXRF},
+                {"method_name": "NEXT", "df": df_NEXT},
                 {"method_name": "RF", "df": df_RF},
-                # {"method_name": "SFLXDIFF", "df": df_SFLXDIFF},
             ]
 
             os.makedirs(path_to_save, exist_ok=True)
