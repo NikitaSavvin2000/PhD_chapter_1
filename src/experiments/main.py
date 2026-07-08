@@ -34,7 +34,7 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 WORKERS = 12
 
-EXPERIMENT_NAME = "prod_test"
+EXPERIMENT_NAME = "prod"
 
 home = os.getcwd()
 experiment_path = os.path.join(home, "export",  EXPERIMENT_NAME)
@@ -52,7 +52,7 @@ df_exp = create_experiment_design(experiment_path=experiment_path)
 
 df_to_exp = progress_loader(df_experiment_design=df_exp, progress_csv_path=progress_csv_path, logger=logger)
 
-experiment_count = 25
+experiment_count = 100
 
 
 def run_experiment(row_exp):
