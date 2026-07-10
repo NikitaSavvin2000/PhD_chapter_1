@@ -352,7 +352,7 @@ $$
 
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -365,7 +365,7 @@ $$
 </p>
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -374,7 +374,7 @@ $$
 </p>
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -401,7 +401,7 @@ Table 1. The results of the evaluation of filling methods for dataset "" type of
 
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -440,7 +440,7 @@ Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Inde
 | POLYNOMIAL | 0.402 | 75.957 | 0.494 | 1.070 | 187.134 | 1.326 | 1.767 | 315.260 | 2.234 | 2.678 | 481.254 | 3.310 |
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -478,11 +478,9 @@ Table 3. Evaluation results of imputation methods for the "Daily Climate" climat
 | QUADRATIC | 0.192 | 39.767 | 0.208 | 0.192 | 44.301 | 0.213 | 0.199 | 45.411 | 0.223 | 0.201 | 47.668 | 0.227 |
 | POLYNOMIAL | 0.071 | 13.349 | 0.086 | 0.163 | 29.848 | 0.203 | 0.265 | 48.246 | 0.320 | 0.377 | 70.929 | 0.475 |
 
-Рис. 6. Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных «Daily Climate».
-Fig. 6. Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset «Daily Climate»
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
