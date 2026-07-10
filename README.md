@@ -383,24 +383,93 @@ $$
 Таблица 1. Результаты оценки методов заполнения для датасета «» типа энергетика.
 Table 1. The results of the evaluation of filling methods for dataset "" type of energy
 
-Рис. 4. Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных .
-Fig. 4. Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset .
 
 
+<p align="center">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+</p>
+
+<p align="center">
+  <b>Рис. 4.</b> Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных.<br>
+  <b>Fig. 4.</b>  Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset.
+</p>
 
 
 Таблица 2. Результаты оценки методов заполнения для датасета «Istanbul Trafic Index» типа трафик.
 Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Index" traffic dataset.
 
-Рис. 5. Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных «Istanbul Trafic Index».
-Fig. 5. Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset «Istanbul Trafic Index».
+| Метод | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| PFBGB | 0.078 | 15.118 | 0.104 | 0.095 | 21.642 | 0.128 | 0.100 | 22.934 | 0.137 | 0.108 | 25.417 | 0.148 |
+| AIM | 0.084 | 16.068 | 0.112 | 0.103 | 23.697 | 0.139 | 0.110 | 24.447 | 0.148 | 0.115 | 28.140 | 0.156 |
+| SKNN | 0.090 | 16.914 | 0.118 | 0.104 | 22.965 | 0.141 | 0.108 | 24.244 | 0.148 | 0.115 | 26.059 | 0.157 |
+| HDIRT | 0.131 | 28.658 | 0.170 | 0.141 | 33.307 | 0.186 | 0.141 | 33.243 | 0.187 | 0.142 | 35.371 | 0.189 |
+| XGB | 0.144 | 29.097 | 0.175 | 0.152 | 33.553 | 0.184 | 0.150 | 33.466 | 0.183 | 0.154 | 35.596 | 0.189 |
+| RF | 0.139 | 28.854 | 0.171 | 0.147 | 33.237 | 0.180 | 0.143 | 33.024 | 0.179 | 0.146 | 35.193 | 0.183 |
+| CSBI | 0.192 | 43.556 | 0.238 | 0.191 | 44.293 | 0.244 | 0.177 | 39.677 | 0.232 | 0.162 | 39.212 | 0.214 |
+| KNN | 0.135 | 30.086 | 0.169 | 0.142 | 34.012 | 0.179 | 0.142 | 34.077 | 0.181 | 0.144 | 36.647 | 0.185 |
+| LR | 0.154 | 30.894 | 0.181 | 0.149 | 33.652 | 0.182 | 0.137 | 33.614 | 0.177 | 0.149 | 40.543 | 0.200 |
+| SMEAN | 0.130 | 29.244 | 0.166 | 0.140 | 33.637 | 0.178 | 0.141 | 33.800 | 0.180 | 0.145 | 36.149 | 0.186 |
+| LINTER | 0.140 | 28.933 | 0.183 | 0.151 | 32.790 | 0.198 | 0.153 | 33.983 | 0.201 | 0.158 | 37.905 | 0.207 |
+| LINEAR | 0.131 | 26.154 | 0.167 | 0.138 | 30.293 | 0.183 | 0.139 | 30.575 | 0.183 | 0.143 | 32.224 | 0.189 |
+| MEAN | 0.135 | 30.086 | 0.169 | 0.142 | 34.012 | 0.179 | 0.142 | 34.077 | 0.181 | 0.144 | 36.647 | 0.185 |
+| MEAN_BETWEEN | 0.134 | 27.222 | 0.175 | 0.147 | 32.751 | 0.195 | 0.149 | 34.304 | 0.196 | 0.153 | 35.875 | 0.203 |
+| LAST | 0.137 | 28.497 | 0.181 | 0.151 | 33.213 | 0.201 | 0.153 | 33.945 | 0.201 | 0.157 | 38.055 | 0.208 |
+| NEXT | 0.138 | 28.067 | 0.180 | 0.149 | 33.308 | 0.199 | 0.150 | 34.537 | 0.198 | 0.155 | 36.099 | 0.205 |
+| MEDIAN | 0.131 | 30.239 | 0.168 | 0.136 | 34.896 | 0.179 | 0.139 | 35.026 | 0.183 | 0.141 | 37.818 | 0.187 |
+| SPLINE | 0.121 | 27.349 | 0.154 | 0.130 | 31.003 | 0.167 | 0.130 | 31.349 | 0.168 | 0.132 | 33.820 | 0.172 |
+| CUBIC | 0.121 | 27.349 | 0.154 | 0.130 | 31.003 | 0.167 | 0.130 | 31.349 | 0.168 | 0.132 | 33.820 | 0.172 |
+| QUADRATIC | 0.123 | 27.567 | 0.154 | 0.131 | 31.043 | 0.167 | 0.132 | 31.418 | 0.168 | 0.133 | 33.872 | 0.172 |
+| POLYNOMIAL | 0.402 | 75.957 | 0.494 | 1.070 | 187.134 | 1.326 | 1.767 | 315.260 | 2.234 | 2.678 | 481.254 | 3.310 |
 
+<p align="center">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+</p>
+
+<p align="center">
+  <b>Рис. 5.</b>  Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных «Istanbul Trafic Index»..<br>
+  <b>Fig. 5.</b>  Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset «Istanbul Trafic Index».
+</p>
 
 
 Таблица 3. Результаты оценки методов заполнения для датасета «Daily Climate» типа климат.
-Table 2. Evaluation results of imputation methods for the "Daily Climate" climate dataset.
+Table 3. Evaluation results of imputation methods for the "Daily Climate" climate dataset.
+
+| Метод | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **PFBGB** | **0.048** | **9.062** | **0.058** | **0.058** | **11.587** | **0.072** | **0.062** | **12.806** | **0.077** | **0.069** | **14.970** | **0.085** |
+| AIM | 0.049 | 9.300 | 0.061 | 0.059 | 12.144 | 0.074 | 0.066 | 13.818 | 0.082 | 0.074 | 15.665 | 0.093 |
+| SKNN | 0.056 | 10.515 | 0.069 | 0.064 | 13.023 | 0.080 | 0.067 | 13.762 | 0.083 | 0.073 | 15.244 | 0.090 |
+| HDIRT | 0.054 | 10.540 | 0.065 | 0.058 | 11.791 | 0.072 | 0.060 | 12.622 | 0.075 | 0.063 | 13.487 | 0.078 |
+| XGB | 0.062 | 11.750 | 0.075 | 0.081 | 16.567 | 0.100 | 0.106 | 22.686 | 0.130 | 0.134 | 27.309 | 0.164 |
+| RF | 0.056 | 10.992 | 0.068 | 0.075 | 15.440 | 0.092 | 0.099 | 21.339 | 0.121 | 0.122 | 25.840 | 0.151 |
+| CSBI | 0.084 | 16.637 | 0.101 | 0.087 | 17.871 | 0.106 | 0.112 | 23.928 | 0.138 | 0.153 | 35.263 | 0.184 |
+| KNN | 0.195 | 40.412 | 0.211 | 0.192 | 44.515 | 0.214 | 0.193 | 44.573 | 0.217 | 0.195 | 46.060 | 0.221 |
+| LR | 0.204 | 39.116 | 0.220 | 0.199 | 43.675 | 0.220 | 0.195 | 44.399 | 0.218 | 0.198 | 49.973 | 0.227 |
+| SMEAN | 0.064 | 12.500 | 0.076 | 0.068 | 13.621 | 0.081 | 0.069 | 14.614 | 0.085 | 0.072 | 15.608 | 0.089 |
+| LINTER | 0.051 | 9.365 | 0.063 | 0.073 | 14.178 | 0.090 | 0.097 | 20.165 | 0.120 | 0.122 | 25.668 | 0.153 |
+| LINEAR | 0.044 | 8.203 | 0.054 | 0.053 | 10.293 | 0.066 | 0.059 | 11.668 | 0.074 | 0.064 | 13.460 | 0.080 |
+| MEAN | 0.195 | 40.412 | 0.211 | 0.192 | 44.515 | 0.214 | 0.193 | 44.573 | 0.217 | 0.195 | 46.060 | 0.221 |
+| MEAN_BETWEEN | 0.051 | 9.321 | 0.062 | 0.072 | 14.673 | 0.088 | 0.097 | 20.381 | 0.120 | 0.125 | 26.775 | 0.153 |
+| LAST | 0.056 | 10.809 | 0.069 | 0.078 | 15.458 | 0.095 | 0.103 | 21.650 | 0.126 | 0.127 | 26.719 | 0.157 |
+| NEXT | 0.056 | 10.564 | 0.069 | 0.076 | 15.559 | 0.093 | 0.101 | 21.300 | 0.125 | 0.128 | 27.486 | 0.158 |
+| MEDIAN | 0.184 | 43.051 | 0.204 | 0.184 | 47.823 | 0.208 | 0.188 | 47.161 | 0.212 | 0.189 | 48.137 | 0.215 |
+| SPLINE | 0.193 | 39.884 | 0.208 | 0.192 | 44.429 | 0.214 | 0.199 | 45.364 | 0.223 | 0.201 | 47.633 | 0.228 |
+| CUBIC | 0.193 | 39.884 | 0.208 | 0.192 | 44.429 | 0.214 | 0.199 | 45.364 | 0.223 | 0.201 | 47.633 | 0.228 |
+| QUADRATIC | 0.192 | 39.767 | 0.208 | 0.192 | 44.301 | 0.213 | 0.199 | 45.411 | 0.223 | 0.201 | 47.668 | 0.227 |
+| POLYNOMIAL | 0.071 | 13.349 | 0.086 | 0.163 | 29.848 | 0.203 | 0.265 | 48.246 | 0.320 | 0.377 | 70.929 | 0.475 |
+
 Рис. 6. Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных «Daily Climate».
 Fig. 6. Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset «Daily Climate»
+
+<p align="center">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="70%" alt="Рис. 1">
+</p>
+
+<p align="center">
+  <b>Рис. 6.</b>Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных «Daily Climate».<br>
+  <b>Fig. 6.</b>Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset «Daily Climate»
+</p>
 
 
 <h2 align="center">Заключение</h2>
@@ -415,53 +484,44 @@ Fig. 6. Distribution of missing data imputation errors measured by MAE, MAPE, an
 </p>
 
 <h2 align="center">Список литературы</h2>
-1.	Palchevsky E. V., Antonov V. V., Kromina L. E., Rodionova L. E., Fakhrunina A. R. Intelligent forecasting of electricity consumption in managing energy enterprises in order to carry out energy-saving measures // Mechatronics, Automation, Control. 2023. Т. 24. № 6. С. 307–316. DOI: 10.17587/mau.24.307-316.
-2.	Гулай А. В., Зайцев В. М. Цифровой контроль тенденций изменения сенсорных параметров в интеллектуальных системах // Мехатроника, автоматизация, управление. 2018. Т. 19. № 7. С. 442–450. DOI: 10.17587/mau.19.442-450.
-3.	Васильев Д. А., Колоколов М. В., Иващенко В. А. Прогнозирование электропотребления в АСУ энергетикой промышленных предприятий // Мехатроника, автоматизация, управление. 2010. № 8. С. 58–60.
-4.	Игнатов Н. А. Реализация концепции энергоэффективности в автоматизированных системах управления на основе прогнозирования параметров рынка электрической энергии // Мехатроника, автоматизация, управление. 2011. № 6. С. 48–55.
-5.	Васильев Д. А. Гибридная модель прогнозирования электрических нагрузок промышленных предприятий // Мехатроника, автоматизация, управление. 2011. № 9. С. 37–40.
-6.	Антонов В. В., Кромина Л. А., Родионова Л. Е., Фахруллина А. Р., Баймурзина Л. И., Пальчевский Е. В., Родионов Е. А. Концепция формирования интеллектуальных управляющих систем энергоснабжения городских сетей // Мехатроника, автоматизация, управление. 2023. Т. 24. № 4. С. 190–198. DOI: 10.17587/mau.24.190-198.
-7.	Tomasz Niedzielski. Improving Linear Interpolation of Missing Hydrological Data by Applying Integrated Autoregressive Models / Tomasz Niedzielski, Michał Halicki // Water Resources Management. - 2023. - Vol. 37. No. 14. - P. 5707-5724. DOI - https://doi.org/10.1007/s11269-023-03625-7.
-8.	Chenhui Wang. Time Series Prediction Model of Landslide Displacement Using Mean-Based Low-Rank Autoregressive Tensor Completion / Chenhui Wang, Yijiu Zhao // Applied Sciences. - 2023. - Vol. 13. No. 8. - P. 5214. DOI - https://doi.org/10.3390/app13085214.
-9.	Ayaz Hussain. Analyzing the Effect of Error Estimation on Random Missing Data Patterns in Mid-Term Electrical Forecasting / Ayaz Hussain, Paolo Giangrande, Giuseppe Franchini, Lorenzo Fenili, Silvio Messi // Electronics. - 2025. - Vol. 14. No. 7. - P. 1383. DOI - https://doi.org/10.3390/electronics14071383.
-10.	Lakmini Wijesekara. Mind the Large Gap: Novel Algorithm Using Seasonal Decomposition and Elastic Net Regression to Impute Large Intervals of Missing Data in Air Quality Data / Lakmini Wijesekara, Liwan Liyanage // Atmosphere. - 2023. - Vol. 14. No. 2. - P. 355. DOI - https://doi.org/10.3390/atmos14020355.
-11.	Guilherme Pumi. A Novel Multiple Imputation Approach For Parameter Estimation in Observation-Driven Time Series Models With Missing Data / Guilherme Pumi, Taiane Schaedler Prass, Douglas Krauthein Verdum // arXiv (Cornell University). - arXi. DOI - https://doi.org/10.48550/arxiv.2601.01259.
-12.	Yichen Zhu. Networked Time-series Prediction with Incomplete Data via Generative Adversarial Network / Yichen Zhu, Bo Jiang, Haiming Jin, Mengtian Zhang, Feng Gao, Jianqiang Huang, Tao Lin, Xinbing Wang // ACM Transactions on Knowledge Discovery from Data. - 2024. - Vol. 18. No. 5. - P. 1-25. DOI - https://doi.org/10.1145/3643822.
-13.	Suyel Namasudra. Enhanced Neural Network-Based Univariate Time-Series Forecasting Model for Big Data / Suyel Namasudra, S. Dhamodharavadhani, R. Rathipriya, Rubén González Crespo, Nageswara Rao Moparthi // Big Data. - 2024. - Vol. 12. No. 2. - P. 83-99. DOI - https://doi.org/10.1089/big.2022.0155.
-14.	Filip Arnaut. Improving Air Quality Data Reliability through Bi-Directional Univariate Imputation with the Random Forest Algorithm / Filip Arnaut, Vladimir Đurđević, Aleksandra Kolarski, Vladimir A. Srécković, Sreten Jevremović // Sustainability. - 2024. - Vol. 16. No. 17. - P. 7629. DOI - https://doi.org/10.3390/su16177629.
-15.	Caiyun Zhang. Impacts of Missing Buoy Data on LSTM-Based Coastal Chlorophyll-a Forecasting / Caiyun Zhang, Wenxiang Ding, Liyu Zhang // Water. - 2024. - Vol. 16. No. 21. - P. 3046. DOI - https://doi.org/10.3390/w16213046.
-16.	Jiabao Li. Uncertainty-Aware Self-Attention Model for Time Series Prediction with Missing Values / Jiabao Li, Chengjun Wang, Wenhang Su, Dongdong Ye, Ziyang Wang // Fractal and Fractional. - 2025. - Vol. 9. No. 3. - P. 181. DOI - https://doi.org/10.3390/fractalfract9030181.
-17.	Keyang Zhong. Attention-based generative adversarial networks for aquaponics environment time series data imputation / Keyang Zhong, Xueqian Sun, Gedi Liu, Yifeng Jiang, Yi Ouyang, Yang Wang // Information Processing in Agriculture. - 2024. - Vol. 11. No. 4. - P. 542-551. DOI - https://doi.org/10.1016/j.inpa.2023.10.001.
-18.	Sabera Talukder. TOTEM: TOkenized Time Series EMbeddings for General Time Series Analysis / Sabera Talukder, Yisong Yue, Georgia Gkioxari // arXiv (Cornell University). - arXi. DOI - https://doi.org/10.48550/arxiv.2402.16412.
-19.	Quoc‐Thang Phan. An innovative hybrid model combining informer and K‐Means clustering methods for invisible multisite solar power estimation / Quoc‐Thang Phan, Yuan‐Kang Wu, Quốc Dũng Phan // IET Renewable Power Generation. - 2024. - Vol. 18. No. S1. - P. 4318-4333. DOI - https://doi.org/10.1049/rpg2.13176.
-20.	Dmitrii Vasenin. Incorporating Seasonal Features in Data Imputation Methods for Power Demand Time Series / Dmitrii Vasenin, Marco Pasetti, Davide Astolfi, Nikita Savvin, Stefano Rinaldi, Alberto Berizzi // IEEE Access — 2024. — Volume: 12. — Page(s): 103520 - 103536. DOI - https://doi.org/10.1109/ACCESS.2024.3434652
+<ol align="justify">
+  <li>Palchevsky E. V., Antonov V. V., Kromina L. E., Rodionova L. E., Fakhrunina A. R. Intelligent forecasting of electricity consumption in managing energy enterprises in order to carry out energy-saving measures // Mechatronics, Automation, Control. 2023. Т. 24. № 6. С. 307–316. DOI: 10.17587/mau.24.307-316.</li>
 
-PFBGB: a time series missing value recovery approach based on bidirectional learning from pre-filled input vectors
-N.V. Savvin1,2, savvin.nikita.work@yandex.ru
-1 Voronezh State Technical University, Russia, Voronezh; 2 HSE University, Russia, Moscow.
-Corresponding author:
-Savvin N.V.1,2,  1 PhD Student, Voronezh State Technical University, 84 20-letiya Oktyabrya St., Voronezh, Russian Federation; 2 Software Engineer, HSE University, 20 Myasnitskaya St., Moscow, Russian Federation.
-e-mail: savvin.nikita.work@yandex.ru
-This paper addresses the problem of missing value imputation in time series as a data preprocessing stage for subsequent forecasting. It is shown that missing values limit the formation of long lag vectors, reduce the available temporal context, and decrease the quality of model training. A PFBGB (Pre-Filled Bidirectional Gradient Boosting) method is proposed, based on bidirectional training on complete time series with pre-filling of missing values in input vectors to preserve the temporal context structure. The method employs a bidirectional lag representation that incorporates values before and after the point being reconstructed, enabling the use of an extended temporal context during imputation. Experimental evaluation on real-world energy, traffic, and climate time series demonstrates an average improvement of 10% in MAPE compared with the baseline gradient boosting approach and a 1% improvement over the best-performing methods based on historical and seasonal dependencies.
-Keywords: time series, missing value imputation, time series missing data filling, machine learning, gradient boosting, PFBGB, lag features, time series seasonality, time series features, time series preprocessing.
-References
-1.	Palchevsky E. V., Antonov V. V., Kromina L. E., Rodionova L. E., Fakhrunina A. R. Intelligent forecasting of electricity consumption in managing energy enterprises in order to carry out energy-saving measures // Mechatronics, Automation, Control. 2023. Vol. 24. No. 6. Pp. 307–316. DOI: 10.17587/mau.24.307-316.
-2.	Guly A. V., Zaitsev V. M. Digital monitoring of trends in sensor parameter changes in intelligent systems // Mechatronics, Automation, Control. 2018. Vol. 19. No. 7. Pp. 442–450. DOI: 10.17587/mau.19.442-450.
-3.	Vasilyev D. A., Kolokolov M. V., Ivashchenko V. A. Forecasting electricity consumption in automated control systems of industrial energy enterprises // Mechatronics, Automation, Control. 2010. No. 8. Pp. 58–60.
-4.	Ignatov N. A. Implementation of the energy efficiency concept in automated control systems based on forecasting parameters of the electricity market // Mechatronics, Automation, Control. 2011. No. 6. Pp. 48–55.
-5.	Vasilyev D. A. Hybrid model for forecasting electrical loads of industrial enterprises // Mechatronics, Automation, Control. 2011. No. 9. Pp. 37–40.
-6.	Antonov V. V., Kromina L. A., Rodionova L. E., Fakhrullina A. R., Baimurzina L. I., Palchevsky E. V., Rodionov E. A. Concept for the formation of intelligent control systems for urban power supply networks // Mechatronics, Automation, Control. 2023. Vol. 24. No. 4. Pp. 190–198. DOI: 10.17587/mau.24.190-198.
-7.	Tomasz Niedzielski. Improving Linear Interpolation of Missing Hydrological Data by Applying Integrated Autoregressive Models / Tomasz Niedzielski, Michał Halicki // Water Resources Management. - 2023. - Vol. 37. No. 14. - P. 5707-5724. DOI - https://doi.org/10.1007/s11269-023-03625-7.
-8.	Chenhui Wang. Time Series Prediction Model of Landslide Displacement Using Mean-Based Low-Rank Autoregressive Tensor Completion / Chenhui Wang, Yijiu Zhao // Applied Sciences. - 2023. - Vol. 13. No. 8. - P. 5214. DOI - https://doi.org/10.3390/app13085214.
-9.	Ayaz Hussain. Analyzing the Effect of Error Estimation on Random Missing Data Patterns in Mid-Term Electrical Forecasting / Ayaz Hussain, Paolo Giangrande, Giuseppe Franchini, Lorenzo Fenili, Silvio Messi // Electronics. - 2025. - Vol. 14. No. 7. - P. 1383. DOI - https://doi.org/10.3390/electronics14071383.
-10.	Lakmini Wijesekara. Mind the Large Gap: Novel Algorithm Using Seasonal Decomposition and Elastic Net Regression to Impute Large Intervals of Missing Data in Air Quality Data / Lakmini Wijesekara, Liwan Liyanage // Atmosphere. - 2023. - Vol. 14. No. 2. - P. 355. DOI - https://doi.org/10.3390/atmos14020355.
-11.	Guilherme Pumi. A Novel Multiple Imputation Approach For Parameter Estimation in Observation-Driven Time Series Models With Missing Data / Guilherme Pumi, Taiane Schaedler Prass, Douglas Krauthein Verdum // arXiv (Cornell University). - arXi. DOI - https://doi.org/10.48550/arxiv.2601.01259.
-12.	Yichen Zhu. Networked Time-series Prediction with Incomplete Data via Generative Adversarial Network / Yichen Zhu, Bo Jiang, Haiming Jin, Mengtian Zhang, Feng Gao, Jianqiang Huang, Tao Lin, Xinbing Wang // ACM Transactions on Knowledge Discovery from Data. - 2024. - Vol. 18. No. 5. - P. 1-25. DOI - https://doi.org/10.1145/3643822.
-13.	Suyel Namasudra. Enhanced Neural Network-Based Univariate Time-Series Forecasting Model for Big Data / Suyel Namasudra, S. Dhamodharavadhani, R. Rathipriya, Rubén González Crespo, Nageswara Rao Moparthi // Big Data. - 2024. - Vol. 12. No. 2. - P. 83-99. DOI - https://doi.org/10.1089/big.2022.0155.
-14.	Filip Arnaut. Improving Air Quality Data Reliability through Bi-Directional Univariate Imputation with the Random Forest Algorithm / Filip Arnaut, Vladimir Đurđević, Aleksandra Kolarski, Vladimir A. Srécković, Sreten Jevremović // Sustainability. - 2024. - Vol. 16. No. 17. - P. 7629. DOI - https://doi.org/10.3390/su16177629.
-15.	Caiyun Zhang. Impacts of Missing Buoy Data on LSTM-Based Coastal Chlorophyll-a Forecasting / Caiyun Zhang, Wenxiang Ding, Liyu Zhang // Water. - 2024. - Vol. 16. No. 21. - P. 3046. DOI - https://doi.org/10.3390/w16213046.
-16.	Jiabao Li. Uncertainty-Aware Self-Attention Model for Time Series Prediction with Missing Values / Jiabao Li, Chengjun Wang, Wenhang Su, Dongdong Ye, Ziyang Wang // Fractal and Fractional. - 2025. - Vol. 9. No. 3. - P. 181. DOI - https://doi.org/10.3390/fractalfract9030181.
-17.	Keyang Zhong. Attention-based generative adversarial networks for aquaponics environment time series data imputation / Keyang Zhong, Xueqian Sun, Gedi Liu, Yifeng Jiang, Yi Ouyang, Yang Wang // Information Processing in Agriculture. - 2024. - Vol. 11. No. 4. - P. 542-551. DOI - https://doi.org/10.1016/j.inpa.2023.10.001.
-18.	Sabera Talukder. TOTEM: TOkenized Time Series EMbeddings for General Time Series Analysis / Sabera Talukder, Yisong Yue, Georgia Gkioxari // arXiv (Cornell University). - arXi. DOI - https://doi.org/10.48550/arxiv.2402.16412.
-19.	Quoc‐Thang Phan. An innovative hybrid model combining informer and K‐Means clustering methods for invisible multisite solar power estimation / Quoc‐Thang Phan, Yuan‐Kang Wu, Quốc Dũng Phan // IET Renewable Power Generation. - 2024. - Vol. 18. No. S1. - P. 4318-4333. DOI - https://doi.org/10.1049/rpg2.13176.
-20.	Dmitrii Vasenin. Incorporating Seasonal Features in Data Imputation Methods for Power Demand Time Series / Dmitrii Vasenin, Marco Pasetti, Davide Astolfi, Nikita Savvin, Stefano Rinaldi, Alberto Berizzi // IEEE Access — 2024. — Volume: 12. — Page(s): 103520 - 103536. DOI - https://doi.org/10.1109/ACCESS.2024.3434652
+  <li>Гулай А. В., Зайцев В. М. Цифровой контроль тенденций изменения сенсорных параметров в интеллектуальных системах // Мехатроника, автоматизация, управление. 2018. Т. 19. № 7. С. 442–450. DOI: 10.17587/mau.19.442-450.</li>
+
+  <li>Васильев Д. А., Колоколов М. В., Иващенко В. А. Прогнозирование электропотребления в АСУ энергетикой промышленных предприятий // Мехатроника, автоматизация, управление. 2010. № 8. С. 58–60.</li>
+
+  <li>Игнатов Н. А. Реализация концепции энергоэффективности в автоматизированных системах управления на основе прогнозирования параметров рынка электрической энергии // Мехатроника, автоматизация, управление. 2011. № 6. С. 48–55.</li>
+
+  <li>Васильев Д. А. Гибридная модель прогнозирования электрических нагрузок промышленных предприятий // Мехатроника, автоматизация, управление. 2011. № 9. С. 37–40.</li>
+
+  <li>Антонов В. В., Кромина Л. А., Родионова Л. Е., Фахруллина А. Р., Баймурзина Л. И., Пальчевский Е. В., Родионов Е. А. Концепция формирования интеллектуальных управляющих систем энергоснабжения городских сетей // Мехатроника, автоматизация, управление. 2023. Т. 24. № 4. С. 190–198. DOI: 10.17587/mau.24.190-198.</li>
+
+  <li>Tomasz Niedzielski. Improving Linear Interpolation of Missing Hydrological Data by Applying Integrated Autoregressive Models / Tomasz Niedzielski, Michał Halicki // Water Resources Management. 2023. Vol. 37. No. 14. P. 5707–5724. DOI: https://doi.org/10.1007/s11269-023-03625-7.</li>
+
+  <li>Chenhui Wang. Time Series Prediction Model of Landslide Displacement Using Mean-Based Low-Rank Autoregressive Tensor Completion / Chenhui Wang, Yijiu Zhao // Applied Sciences. 2023. Vol. 13. No. 8. P. 5214. DOI: https://doi.org/10.3390/app13085214.</li>
+
+  <li>Ayaz Hussain. Analyzing the Effect of Error Estimation on Random Missing Data Patterns in Mid-Term Electrical Forecasting / Ayaz Hussain, Paolo Giangrande, Giuseppe Franchini, Lorenzo Fenili, Silvio Messi // Electronics. 2025. Vol. 14. No. 7. P. 1383. DOI: https://doi.org/10.3390/electronics14071383.</li>
+
+  <li>Lakmini Wijesekara. Mind the Large Gap: Novel Algorithm Using Seasonal Decomposition and Elastic Net Regression to Impute Large Intervals of Missing Data in Air Quality Data / Lakmini Wijesekara, Liwan Liyanage // Atmosphere. 2023. Vol. 14. No. 2. P. 355. DOI: https://doi.org/10.3390/atmos14020355.</li>
+
+  <li>Guilherme Pumi. A Novel Multiple Imputation Approach For Parameter Estimation in Observation-Driven Time Series Models With Missing Data / Guilherme Pumi, Taiane Schaedler Prass, Douglas Krauthein Verdum // arXiv (Cornell University). DOI: https://doi.org/10.48550/arxiv.2601.01259.</li>
+
+  <li>Yichen Zhu. Networked Time-series Prediction with Incomplete Data via Generative Adversarial Network / Yichen Zhu, Bo Jiang, Haiming Jin, Mengtian Zhang, Feng Gao, Jianqiang Huang, Tao Lin, Xinbing Wang // ACM Transactions on Knowledge Discovery from Data. 2024. Vol. 18. No. 5. P. 1–25. DOI: https://doi.org/10.1145/3643822.</li>
+
+  <li>Suyel Namasudra. Enhanced Neural Network-Based Univariate Time-Series Forecasting Model for Big Data / Suyel Namasudra, S. Dhamodharavadhani, R. Rathipriya, Rubén González Crespo, Nageswara Rao Moparthi // Big Data. 2024. Vol. 12. No. 2. P. 83–99. DOI: https://doi.org/10.1089/big.2022.0155.</li>
+
+  <li>Filip Arnaut. Improving Air Quality Data Reliability through Bi-Directional Univariate Imputation with the Random Forest Algorithm / Filip Arnaut, Vladimir Đurđević, Aleksandra Kolarski, Vladimir A. Srécković, Sreten Jevremović // Sustainability. 2024. Vol. 16. No. 17. P. 7629. DOI: https://doi.org/10.3390/su16177629.</li>
+
+  <li>Caiyun Zhang. Impacts of Missing Buoy Data on LSTM-Based Coastal Chlorophyll-a Forecasting / Caiyun Zhang, Wenxiang Ding, Liyu Zhang // Water. 2024. Vol. 16. No. 21. P. 3046. DOI: https://doi.org/10.3390/w16213046.</li>
+
+  <li>Jiabao Li. Uncertainty-Aware Self-Attention Model for Time Series Prediction with Missing Values / Jiabao Li, Chengjun Wang, Wenhang Su, Dongdong Ye, Ziyang Wang // Fractal and Fractional. 2025. Vol. 9. No. 3. P. 181. DOI: https://doi.org/10.3390/fractalfract9030181.</li>
+
+  <li>Keyang Zhong. Attention-based generative adversarial networks for aquaponics environment time series data imputation / Keyang Zhong, Xueqian Sun, Gedi Liu, Yifeng Jiang, Yi Ouyang, Yang Wang // Information Processing in Agriculture. 2024. Vol. 11. No. 4. P. 542–551. DOI: https://doi.org/10.1016/j.inpa.2023.10.001.</li>
+
+  <li>Sabera Talukder. TOTEM: TOkenized Time Series EMbeddings for General Time Series Analysis / Sabera Talukder, Yisong Yue, Georgia Gkioxari // arXiv (Cornell University). DOI: https://doi.org/10.48550/arxiv.2402.16412.</li>
+
+  <li>Quoc‐Thang Phan. An innovative hybrid model combining informer and K‐Means clustering methods for invisible multisite solar power estimation / Quoc‐Thang Phan, Yuan‐Kang Wu, Quốc Dũng Phan // IET Renewable Power Generation. 2024. Vol. 18. No. S1. P. 4318–4333. DOI: https://doi.org/10.1049/rpg2.13176.</li>
+
+  <li>Dmitrii Vasenin. Incorporating Seasonal Features in Data Imputation Methods for Power Demand Time Series / Dmitrii Vasenin, Marco Pasetti, Davide Astolfi, Nikita Savvin, Stefano Rinaldi, Alberto Berizzi // IEEE Access. 2024. Vol. 12. P. 103520–103536. DOI: https://doi.org/10.1109/ACCESS.2024.3434652.</li>
+</ol>
