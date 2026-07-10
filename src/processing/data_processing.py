@@ -2465,3 +2465,102 @@ def _build_window_features(
         features,
         dtype=np.float32
     )
+
+
+
+def plot_time_series_with_removed(
+        df,
+        col_target,
+        col_removed,
+        save_path,
+        metrics
+):
+    df = df.copy().sort_index()
+
+    plt.figure(figsize=(14, 5))
+
+    values = df[col_target].values
+    dates = df.index
+    removed = df[col_removed].astype(bool).values
+
+    start = 0
+
+    for i in range(1, len(df)):
+        if removed[i] != removed[i - 1]:
+            plt.plot(
+                dates[start:i],
+                values[start:i],
+                color="orange" if removed[start] else "blue",
+                linewidth=0.5
+            )
+            start = i
+
+    plt.plot(
+        dates[start:],
+        values[start:],
+        color="orange" if removed[start] else "blue",
+        linewidth=0.5
+    )
+
+    plt.plot([], [], color="blue", linewidth=1.5, label="Observed values")
+    plt.plot([], [], color="orange", linewidth=1.5, label="Imputed values")
+
+    plt.xlabel("Time")
+    plt.ylabel("Value")
+    plt.title("Time Series Reconstruction")
+    plt.grid(True, alpha=0.3)
+
+    plt.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.12),
+        ncol=2,
+        frameon=False
+    )
+
+    metrics_text = (
+        f"MAE: {metrics['mae']:.4f}   |   "
+        f"RMSE: {metrics['rmse']:.4f}   |   "
+        f"MAPE: {metrics['mape']:.2f}%"
+    )
+
+    plt.figtext(
+        0.5,
+        -0.05,
+        metrics_text,
+        ha="center",
+        fontsize=10
+    )
+
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
+
+    save_path = f"{save_path}/evaluation_plot.png"
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    plt.savefig(
+        save_path,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+def calculate_mean_metrics(df):
+    metrics = df[["mae", "rmse", "mape"]].replace(
+        [float("inf"), float("-inf")],
+        float("nan")
+    )
+
+    return {
+        "mae": metrics["mae"].mean(),
+        "rmse": metrics["rmse"].mean(),
+        "mape": metrics["mape"].mean()
+    }
+
+def get_missing_percent(df, col_target, logger):
+    missing_percent = int(round(df[col_target].isna().mean() * 100))
+    log = f"Percent of gaps = {missing_percent} %"
+    logger.info(log)
+    gap_to_test = min(missing_percent, 20)
+    log = f"Percent of gaps for evaluation = {gap_to_test} %"
+    logger.info(log)
+    return gap_to_test
