@@ -1,167 +1,167 @@
 # PFBGB: Pre-Filled Bidirectional Gradient Boosting,
 
 
-**PFBGB (Pre-Filled Bidirectional Gradient Boosting,)** — подход к восстановлению пропусков во временных рядах на основе градиентного бустинга с бинаправленным обучением на предзаполненных данных .
+**PFBGB (Pre-Filled Bidirectional Gradient Boosting,)** is an approach for missing value imputation in time series based on gradient boosting with bidirectional training on pre-filled data.
 
-Данное программное обеспечение разработано **Саввиным Никитой Владимировичем** в рамках диссертационного исследования. Представленная реализация соответствует материалам **главы 1** диссертационной работы и предназначена для проведения вычислительных экспериментов по восстановлению пропусков во временных рядах.
+This software was developed by **Nikita Vladimirovich Savvin** as part of a dissertation research project. The presented implementation corresponds to the materials of **Chapter 1** of the dissertation and is intended for conducting computational experiments on missing value imputation in time series.
 
 
 
-## Быстрый запуск
+## Quick Start
 
-### 1. Установка зависимостей
+### 1. Installing dependencies
 
 ```bash
 pdm install
 ```
 
-### 2. Активация виртуального окружения
+### 2. Activating the virtual environment
 
 ```bash
 source .venv/bin/activate
 ```
 
-### 3. Запуск экспериментов
+### 3. Running experiments
 
 ```bash
 pdm run src/experiments/main.py
 ```
 
-## Результаты
+## Results
 
-Результаты выполнения экспериментов автоматически сохраняются в директорию:
+The experiment results are automatically saved to the directory:
 
 ```text
 export/
 ```
 
-## Структура проекта
+## Project Structure
 
-| Компонент | Расположение |
-|-----------|--------------|
-| Точка входа приложения | `src/experiments/main.py` |
-| Дизайн вычислительных экспериментов | `src/experiments/experiment_design.py` |
-| Конфигурация наборов данных | `src/data/data_config.py` |
-| Реализация методов восстановления пропусков | `src/methods/imputation_methods.py` |
+| Component | Location |
+|-----------|----------|
+| Application entry point | `src/experiments/main.py` |
+| Computational experiment design | `src/experiments/experiment_design.py` |
+| Dataset configuration | `src/data/data_config.py` |
+| Missing value imputation methods implementation | `src/methods/imputation_methods.py` |
 
-## Примечания
+## Notes
 
-- Основной сценарий запуска расположен в `src/experiments/main.py`.
-- В начале файла `src/experiments/main.py` задаются идентификатор и параметры запускаемого эксперимента.
-- Все результаты автоматически экспортируются в директорию `export/`.
+- The main execution scenario is located in `src/experiments/main.py`.
+- The identifier and parameters of the experiment to be launched are specified at the beginning of the `src/experiments/main.py` file.
+- All results are automatically exported to the `export/` directory.
 
 
 <h1 align="center">
-PFBGB (Pre-Filled Bidirectional Gradient Boosting): подход к восстановлению пропусков во временных рядах с бинаправленным обучением на предзаполненных данных входного вектора
+PFBGB (Pre-Filled Bidirectional Gradient Boosting): an approach for missing value imputation in time series with bidirectional training on pre-filled input vector data
 </h1>
 
 <div align="center">
 
 <p>
-<b>Никита Владимирович Саввин</b><br>
+<b>Nikita Vladimirovich Savvin</b><br>
 Email: <a href="mailto:savvin.nikita.work@yandex.ru">savvin.nikita.work@yandex.ru</a> &nbsp;&nbsp; ORCID: <a href="https://orcid.org/0009-0009-9163-6234">0009-0009-9163-6234</a>
 </p>
 
 </div>
 
-<h2 align="center">Аннотация</h2>
+<h2 align="center">Abstract</h2>
 
 <p align="justify">
-    Рассматривается задача восстановления пропусков во временных рядах как этап подготовки данных для последующего прогнозирования. Одной из основных проблем применения методов машинного обучения для импутации является необходимость формирования полного лагового контекста для каждого восстанавливаемого значения. При наличии пропусков нарушается непрерывность временного ряда, что приводит к неполному представлению входных данных и снижению качества восстановления.
-    Предлагается метод **PFBGB (Pre-Fill Bidirectional Gradient Boosting)**, основанный на предварительном заполнении пропусков с использованием метода SKNN и последующем восстановлении исходных значений с помощью модели градиентного бустинга XGBoost. Ключевой особенностью метода является использование двунаправленного лагового представления, включающего значения как до, так и после восстанавливаемого момента времени. Предварительное заполнение позволяет сформировать полный контекст временной последовательности и использовать информацию из соседних временных интервалов при обучении и восстановлении пропущенных значений.
-    Экспериментальная оценка на временных рядах энергетики, транспортного трафика и климатических наблюдений показывает, что предложенный метод обеспечивает более высокое качество восстановления по сравнению с базовыми подходами импутации. Полученные результаты подтверждают эффективность совместного использования предварительной реконструкции временного ряда, двунаправленного лагового контекста и моделей градиентного бустинга для работы с неполными временными рядами.
+    The problem of missing value imputation in time series is considered as a data preparation stage for subsequent forecasting. One of the main challenges in applying machine learning methods for imputation is the need to form a complete lag context for each reconstructed value. In the presence of missing values, the continuity of the time series is disrupted, leading to an incomplete representation of input data and reduced reconstruction quality.
+    The **PFBGB (Pre-Filled Bidirectional Gradient Boosting)** method is proposed, based on preliminary missing value filling using the SKNN method and subsequent reconstruction of the original values using the XGBoost gradient boosting model. A key feature of the method is the use of a bidirectional lag representation, including values both before and after the time point being reconstructed. Preliminary filling allows the formation of a complete temporal sequence context and the use of information from neighboring time intervals during training and missing value reconstruction.
+    Experimental evaluation on energy, transportation traffic, and climate observation time series demonstrates that the proposed method provides higher reconstruction quality compared to baseline imputation approaches. The obtained results confirm the effectiveness of combining preliminary time series reconstruction, bidirectional lag context, and gradient boosting models for processing incomplete time series.
 </p>
 
-### Ключевые слова
+### Keywords
 
-временные ряды, восстановление пропусков, заполнение пропусков, машинное обучение, градиентный бустинг, SFLXGB, лаговые признаки, сезонность, предобработка данных
+time series, missing value imputation, missing data filling, machine learning, gradient boosting, SFLXGB, lag features, seasonality, data preprocessing
 
-
-<h2 align="center">Введение</h2>
+<h2 align="center">Introduction</h2>
 
 <p align="justify">
-Одним из ключевых этапов повышения качества моделирования временных рядов является подготовка данных. Особую значимость в данном процессе имеет проблема восстановления пропущенных значений, поскольку разрывы нарушают временную структуру, уменьшают доступный контекст и снижают качество последующего анализа и прогнозирования.
-В реальных системах временные ряды практически всегда содержат пропуски, возникающие вследствие отказов измерительных устройств, потери телеметрии, ошибок передачи данных и технического обслуживания оборудования. Данная проблема особенно актуальна для энергетики, транспортного мониторинга, климатических исследований и промышленных систем. Так, прогнозирование нагрузки является важным элементом управления энергетической инфраструктурой [1], а развитие цифровых систем требует применения интеллектуальных методов анализа данных [2]. Современные модели прогнозирования позволяют повысить эффективность управления [3], при этом используются математические методы минимизации ошибки прогноза [4] и гибридные подходы, объединяющие статистические и нейросетевые модели [5]. В целом надежная обработка неполных данных является необходимым условием цифровизации энергетических систем [6].
-Проблема пропусков существенно влияет на качество анализа временных рядов. В работе [7] показано, что отсутствие измерений в гидрологических данных затрудняет восстановление динамики процессов, поскольку локальные методы не всегда учитывают изменение характеристик ряда. Аналогичные ограничения наблюдаются в задачах мониторинга оползней [8] и энергетических системах, где пропуски измерений снижают точность прогнозирования нагрузки [9]. Кроме того, длительные разрывы приводят к потере временного контекста, а некорректное восстановление может изменять статистические свойства данных и снижать качество последующего моделирования [10, 11]. Проблема согласования требований современных методов прогнозирования с реальными неполными данными рассматривается также в [12].
-Для восстановления пропусков применяются методы, основанные на локальных закономерностях, статистических свойствах и структуре временных зависимостей. В работе [7] показано, что линейная интерполяция эффективна для кратковременных пропусков, но ограничена при наличии сложной динамики. Для длительных разрывов используются подходы с учетом сезонности и взаимосвязей между параметрами [10], а сохранение многомерной структуры данных является важным фактором повышения качества восстановления [8]. Дополнительно в [13] рассматривается оценка надежности наблюдений для повышения качества обработки данных.
-Несмотря на развитие существующих методов, остаются нерешенными задачи восстановления при высокой доле пропусков, изменении характера процессов и наличии сложных зависимостей между переменными. В работе [14] показано, что увеличение сложности методов не всегда обеспечивает существенное улучшение качества заполнения, а исследование [15] подтверждает ограниченность современных подходов при компенсации потери информации.
-Перспективным направлением являются методы, учитывающие временные и пространственные зависимости, а также неопределенность восстановленных значений. В работе [16] предложен подход, объединяющий восстановление пропусков и прогнозирование, в [17] показана важность учета корреляций многомерных временных рядов, а в [18] рассматриваются универсальные представления временных рядов для задач восстановления и прогнозирования. В энергетических приложениях восстановление неполных данных применяется для повышения точности оценки генерации и потребления при ограниченной доступности измерений [19].
-Таким образом, задача восстановления пропущенных значений во временных рядах требует разработки методов, сохраняющих временной контекст и учитывающих особенности структуры разрывов. В данной работе предлагаются методы PFBGB (Pre-Filled Bidirectional Gradient Boosting), основанный на двунаправленном лаговом представлении после предварительного заполнения пропусков с учетом временных признаков, и AIM (Ensemble Imputation Method), использующий адаптивный выбор стратегии восстановления в зависимости от характеристик пропущенного участка.
+One of the key stages in improving the quality of time series modeling is data preparation. The problem of missing value imputation is of particular importance in this process, since gaps disrupt the temporal structure, reduce the available context, and decrease the quality of subsequent analysis and forecasting.
+In real-world systems, time series almost always contain missing values caused by measurement device failures, telemetry loss, data transmission errors, and equipment maintenance. This problem is especially relevant for energy systems, transport monitoring, climate research, and industrial applications. For example, load forecasting is an important component of energy infrastructure management [1], while the development of digital systems requires the application of intelligent data analysis methods [2]. Modern forecasting models improve management efficiency [3], while mathematical methods for minimizing forecasting errors [4] and hybrid approaches combining statistical and neural network models [5] are also applied. Overall, reliable processing of incomplete data is a necessary condition for the digitalization of energy systems [6].
+The problem of missing values significantly affects the quality of time series analysis. In [7], it is shown that the absence of measurements in hydrological data complicates the reconstruction of process dynamics, since local methods do not always account for changes in time series characteristics. Similar limitations are observed in landslide monitoring tasks [8] and energy systems, where missing measurements reduce load forecasting accuracy [9]. Moreover, long gaps lead to the loss of temporal context, while inaccurate reconstruction can alter the statistical properties of data and reduce the quality of subsequent modeling [10, 11]. The problem of adapting the requirements of modern forecasting methods to real incomplete data is also discussed in [12].
+Missing value reconstruction methods are based on local patterns, statistical properties, and temporal dependency structures. In [7], it is demonstrated that linear interpolation is effective for short-term gaps but is limited when complex dynamics are present. For long gaps, approaches considering seasonality and relationships between parameters are used [10], while preserving the multidimensional structure of data is an important factor for improving reconstruction quality [8]. Additionally, [13] considers the assessment of observation reliability to improve data processing quality.
+Despite the development of existing methods, challenges remain in reconstructing data with a high proportion of missing values, changing process characteristics, and complex dependencies between variables. In [14], it is shown that increasing method complexity does not always provide significant improvements in imputation quality, while the study [15] confirms the limitations of current approaches in compensating for information loss.
+Promising directions include methods that account for temporal and spatial dependencies, as well as the uncertainty of reconstructed values. In [16], an approach combining missing value reconstruction and forecasting is proposed; [17] demonstrates the importance of considering correlations in multivariate time series; and [18] investigates universal time series representations for reconstruction and forecasting tasks. In energy applications, incomplete data reconstruction is used to improve the accuracy of generation and consumption estimation under limited measurement availability [19].
+Thus, the task of missing value imputation in time series requires the development of methods that preserve temporal context and consider the characteristics of missing segments. This work proposes the PFBGB (Pre-Filled Bidirectional Gradient Boosting) method, based on bidirectional lag representation after preliminary missing value filling with consideration of temporal features, and the AIM (Ensemble Imputation Method), which uses adaptive selection of the reconstruction strategy depending on the characteristics of the missing segment.
 </p>
 
-<h2 align="center">Математическая модель</h2>
+<h2 align="center">Mathematical Model</h2>
 
 <p align="justify">
-В общем виде значение временного ряда описывается следующей формулой:
+In general form, the value of a time series is described by the following equation:
 
 $$
 y=(y_1,y_2,\dots,y_T) \tag{1}
 $$
 
-где $$y_t$$ — наблюдаемое значение процесса в момент времени $$t$$.
+where $$y_t$$ is the observed value of the process at time $$t$$.
 </p>
-## Проблемная ситуация
 
-Существующие методы заполнения пропусков во временных рядах включают простые эвристики (среднее значение, последнее наблюдение, линейная экстраполяция и т.д.) и модели машинного обучения. Однако классические ML-подходы, включая градиентный бустинг, существенно зависят от выбора длины лага. При минимальном лаге (lag = 1) модель использует крайне ограниченный контекст и теряет информацию о динамике процесса.
+## Problem Statement
 
-При увеличении лага возникает проблема частичного наблюдения состояния предыдущих значений для формирования корректного лагового вектора, что приводит к невозможности построения полноценного контекста для предсказания.
+Existing methods for missing value imputation in time series include simple heuristics (mean value, last observation, linear extrapolation, etc.) and machine learning models. However, classical ML approaches, including gradient boosting, strongly depend on the selected lag length. With a minimal lag (lag = 1), the model uses an extremely limited context and loses information about the process dynamics.
+
+When increasing the lag length, the problem of partially observed previous values for constructing a correct lag vector arises, which prevents the formation of a complete context for prediction.
 
 $$
 x_t^{partial}=(y_{t-1},\dots,NaN,\dots,y_{t-p}) \tag{2}
 $$
 
-где $$x_t^{partial}$$ — частично наблюдаемое состояние системы; $$NaN$$ — отсутствующее значение наблюдения; $$p$$ — длина лагового окна.
+where $$x_t^{partial}$$ is the partially observed state of the system; $$NaN$$ is the missing observation value; $$p$$ is the lag window length.
 
-## Гипотеза 1. PFBGB (Pre-Filled Bidirectional Gradient Boosting)
+## Hypothesis 1. PFBGB (Pre-Filled Bidirectional Gradient Boosting)
 
-Предполагается, что предварительное заполнение пропущенных значений с последующим формированием двунаправленного временного контекста позволяет восстановить скрытую динамику процесса без потери информации о локальной структуре временного ряда. Метод основан на обучении модели градиентного бустинга на полностью наблюдаемых участках ряда и последующем прогнозировании пропущенных значений на основе предзаполненного лагового пространства.
+It is assumed that preliminary filling of missing values followed by the formation of a bidirectional temporal context allows the hidden process dynamics to be reconstructed without losing information about the local structure of the time series. The method is based on training a gradient boosting model on fully observed segments of the series and subsequent prediction of missing values using the pre-filled lag space.
 
-Формально вводится оператор предварительной реконструкции:
+The preliminary reconstruction operator is formally introduced:
 
 $$
 Y^*=R_{pre}(Y)
 \tag{3}
 $$
 
-где $$Y^*$$ — предварительно заполненный временной ряд; $$R_{pre}(Y)$$ — оператор предварительного заполнения пропусков с помощью SKNN [20]; $$Y$$ — исходный временной ряд с пропущенными значениями.
+where $$Y^*$$ is the pre-filled time series; $$R_{pre}(Y)$$ is the preliminary missing value filling operator using SKNN [20]; $$Y$$ is the original time series with missing values.
 
-Для построения обучающей выборки используются только непрерывные интервалы без пропусков. Для каждого момента времени формируется двунаправленный лаговый вектор:
+Only continuous intervals without missing values are used to construct the training dataset. For each time point, a bidirectional lag vector is formed:
 
 $$
 x_t=(z_{t-l_b},\dots,z_{t-1},z_{t+1},\dots,z_{t+l_a})
 \tag{4}
 $$
 
-где $$x_t$$ — обучающий вектор признаков для момента времени $$t$$; $$z_t$$ — вектор признаков состояния системы в момент времени $$t$$; $$l_b$$ — количество предыдущих наблюдений; $$l_a$$ — количество последующих наблюдений.
+where $$x_t$$ is the feature vector for time point $$t$$; $$z_t$$ is the system state feature vector at time point $$t$$; $$l_b$$ is the number of previous observations; $$l_a$$ is the number of subsequent observations.
 
-Размеры двунаправленного временного окна определяются следующим образом:
+The sizes of the bidirectional temporal window are defined as follows:
 
 $$
 l_b=[L/2], \quad l_a=L-l_b
 \tag{5}
 $$
 
-где $$L$$ — общий размер временного окна; $$l_b$$ — размер левой части окна; $$l_a$$ — размер правой части окна.
+where $$L$$ is the total temporal window size; $$l_b$$ is the size of the left part of the window; $$l_a$$ is the size of the right part of the window.
 
-Обучающая выборка формируется как множество пар «контекст — целевое значение»:
+The training dataset is formed as a set of "context — target value" pairs:
 
 $$
 D=\{(x_t,y_t)\}_{t=1}^{M}
 \tag{6}
 $$
 
-где $$D$$ — обучающая выборка модели; $$x_t$$ — входной двунаправленный лаговый вектор; $$y_t$$ — наблюдаемое значение временного ряда; $$M$$ — количество обучающих примеров.
+where $$D$$ is the model training dataset; $$x_t$$ is the input bidirectional lag vector; $$y_t$$ is the observed time series value; $$M$$ is the number of training samples.
 
-Основная гипотеза сохранения динамики при восстановлении формулируется следующим образом:
+The main hypothesis of preserving dynamics during reconstruction is formulated as follows:
 
 $$
 F(x_t^{complete})\approx F(R_{pre}(x_t^{partial}))
 \tag{7}
 $$
 
-где $$x_t^{complete}$$ — полностью наблюдаемый лаговый вектор состояния; $$x_t^{partial}$$ — лаговый вектор с пропущенными значениями; $$R_{pre}(x_t^{partial})$$ — оператор предварительного восстановления состояния; $$F(\cdot)$$ — модель градиентного бустинга.
+where $$x_t^{complete}$$ is the fully observed lag vector of the system state; $$x_t^{partial}$$ is the lag vector with missing values; $$R_{pre}(x_t^{partial})$$ is the preliminary state reconstruction operator; $$F(\cdot)$$ is the gradient boosting model.
 
-Для каждого элемента временного ряда применяется правило выбора исходного или предварительно восстановленного значения:
+For each element of the time series, the rule for selecting the original or preliminary reconstructed value is applied:
 
 $$
 \tilde{y}_t=
@@ -172,106 +172,106 @@ y_t^*, & m_t=0
 \tag{8}
 $$
 
-где $$y_t$$ — исходное наблюдаемое значение; $$y_t^*$$ — предварительно восстановленное значение; $$m_t$$ — индикатор наличия исходного наблюдения.
+where $$y_t$$ is the original observed value; $$y_t^*$$ is the preliminary reconstructed value; $$m_t$$ is the indicator of the presence of the original observation.
 
-После предварительного заполнения формируется полный вектор состояния:
+After preliminary filling, the complete state vector is formed:
 
 $$
 z_t^*=(\tilde{y}_t,c_1(t),...,c_p(t))
 \tag{9}
 $$
 
-где $$\tilde{y}_t$$ — выбранное значение временного ряда; $$c_i(t)$$ — дополнительные временные признаки; $$p$$ — количество дополнительных признаков.
+where $$\tilde{y}_t$$ is the selected time series value; $$c_i(t)$$ are additional temporal features; $$p$$ is the number of additional features.
 
-Для каждого пропущенного значения формируется входной вектор восстановления:
+For each missing value, the reconstruction input vector is formed:
 
 $$
 x_t^{gap}=(z_{t-l_b}^{\ast},\dots,z_{t-1}^{\ast},z_{t+1}^{\ast},\dots,z_{t+l_a}^{\ast})
 $$
 
-где $$z_t^*$$ — признаки после предварительного заполнения; $$l_b$$ — количество прошлых наблюдений; $$l_a$$ — количество будущих наблюдений.
+where $$z_t^*$$ are features after preliminary filling; $$l_b$$ is the number of previous observations; $$l_a$$ is the number of future observations.
 
-Модель восстановления задается как композиция деревьев решений:
+The reconstruction model is defined as an ensemble of decision trees:
 
 $$
 F(x_t)=\sum_{j=1}^{J}\eta f_j(x_t)
 \tag{11}
 $$
 
-где $$f_j(x_t)$$ — $$j$$-е дерево решений; $$J$$ — количество деревьев в ансамбле; $$\eta$$ — скорость обучения.
+where $$f_j(x_t)$$ is the $$j$$-th decision tree; $$J$$ is the number of trees in the ensemble; $$\eta$$ is the learning rate.
 
-Обучение модели выполняется путем минимизации квадратичной ошибки:
+The model is trained by minimizing the mean squared error:
 
 $$
 L=\frac{1}{M}\sum_{i=1}^{M}(y_i-F(x_i))^2
 \tag{12}
 $$
 
-где $$M$$ — количество обучающих примеров; $$y_i$$ — истинное значение временного ряда; $$F(x_i)$$ — предсказание модели.
+where $$M$$ is the number of training samples; $$y_i$$ is the true time series value; $$F(x_i)$$ is the model prediction.
 
-Итоговое восстановление пропущенных значений выполняется следующим оператором:
+The final reconstruction of missing values is performed using the following operator:
 
 $$
 \hat{y}_t=F(x_t^{gap}), \quad t\in G
 \tag{13}
 $$
 
-где $$\hat{y}_t$$ — восстановленное значение временного ряда; $$F(\cdot)$$ — обученная модель градиентного бустинга; $$x_t^{gap}$$ — двунаправленный лаговый вектор вокруг пропуска; $$G$$ — множество индексов пропущенных значений.
+where $$\hat{y}_t$$ is the reconstructed time series value; $$F(\cdot)$$ is the trained gradient boosting model; $$x_t^{gap}$$ is the bidirectional lag vector around the missing value; $$G$$ is the set of indices of missing values.
 
-После восстановления формируется итоговый временной ряд:
+After reconstruction, the final time series is formed:
 
 $$
 \hat{Y}=\{\hat{y}_t:m_t=0;\ y_t:m_t=1\}
 \tag{14}
 $$
 
-где $$y_t$$ — исходные наблюдаемые значения; $$\hat{y}_t$$ — восстановленные значения; $$m_t$$ — маска наличия исходного значения.
+where $$y_t$$ are the original observed values; $$\hat{y}_t$$ are the reconstructed values; $$m_t$$ is the mask indicating the presence of the original value.
 
-Таким образом, предполагается, что предварительная реконструкция пропусков позволяет сформировать непрерывное пространство признаков, обеспечивающее построение полного двунаправленного временного контекста. Последующее обучение модели градиентного бустинга на наблюдаемых участках позволяет восстановить локальные зависимости временного ряда и повысить точность импутации пропущенных значений.
+Thus, it is assumed that preliminary reconstruction of missing values enables the formation of a continuous feature space, providing the construction of a complete bidirectional temporal context. Subsequent training of the gradient boosting model on observed segments allows the reconstruction of local time series dependencies and improves the accuracy of missing value imputation.
 
-## Гипотеза 2. AIM (Ansamble Imputatuion Method)
+## Hypothesis 2. AIM (Ensemble Imputation Method)
 
-Классификация пропусков:
+Missing value classification:
 
 $$
 c_t=\varphi(l_t), \quad l_t \in \mathbb{N} \tag{8}
 $$
 
-где $$c_t$$ — класс пропуска; $$l_t$$ — длина разрыва; $$\varphi(\cdot)$$ — функция классификации.
+where $$c_t$$ is the missing value class; $$l_t$$ is the gap length; $$\varphi(\cdot)$$ is the classification function.
 
-Множество методов:
+Set of methods:
 
 $$
 M=\{m_k\}_{k=1}^{N} \tag{9}
 $$
 
-Пропуски:
+Missing values:
 
 $$
 D_{miss}=\{y_t \mid t \in \Omega_{gap}\} \tag{10}
 $$
 
-Восстановление:
+Reconstruction:
 
 $$
 \hat{y}^{(k)} = m_k(D_{miss}) \tag{11}
 $$
 
-Ошибка:
+Error:
 
 $$
 L_k^{(c)} = L(\hat{y}^{(k)}, y) \tag{12}
 $$
 
-где $$L_k^{(c)}$$ — ошибка метода $$m_k$$ на классе $$c$$; $$L(\cdot)$$ — функция потерь; $$y$$ — истинный ряд.
+where $$L_k^{(c)}$$ is the error of method $$m_k$$ for class $$c$$; $$L(\cdot)$$ is the loss function; $$y$$ is the true time series.
 
-Оптимальный метод:
+Optimal method:
 
 $$
 m^*(c)=\arg\min_{m_k \in M} L_k^{(c)} \tag{13}
 $$
 
-Финальное восстановление:
+Final reconstruction:
 
 $$
 \hat{y}_t=
@@ -282,132 +282,131 @@ y_t, & t \notin \Omega_{gap}
 \tag{14}
 $$
 
+<h2 align="center">Software Evaluation</h2>
 
-<h2 align="center">Программная апробация</h2>
+Three datasets were used for software evaluation: **Russia Elista** (energy), **Istanbul Traffic** (transport traffic), and **Temperature** (climate data).
 
-Для программной апробации использовались три набора данных: **Russia Elista** (энергетика), **Istanbul Traffic** (транспортный трафик) и **Temperature** (климатические данные).
+The comparative study considered the following missing value imputation methods:
 
-В сравнительном исследовании рассматривались следующие методы восстановления пропусков:
-
-
-| Метод | Краткое описание                                                                                                                                                                                                              |
+| Method | Brief description |
 |------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PFBGB_imputation | гибридный метод импутации временных рядов, основанный на предварительном заполнении пропусков с помощью SKNN и последующем восстановлении значений моделью XGBoost с использованием двунаправленных лаговых признаков         |
-| PFBRF_imputation | гибридный метод импутации временных рядов, основанный на предварительном заполнении пропусков с помощью SKNN и последующем восстановлении значений моделью Random Foreest с использованием двунаправленных лаговых признаков. |
-| XGB_imputation | Простая авторегрессия на одном лаге (t-1) с XGBoost без сложных окон и без восстановления пропусков в признаках.                                                                                                              |
-| RF_imputation | То же, что XGB_imputation, но с RandomForest вместо XGBoost.                                                                                                                                                                  |
-| HDIRT_imputation | Восстановление через локальную линейную модель по ближайшим значениям в прошлом и будущем; при отсутствии данных используется линейная интерполяция.                                                                          |
-| LR_imputation | Линейная регрессия по временной оси: трендовая аппроксимация ряда и заполнение пропусков по этому тренду.                                                                                                                     |
-| SKNN_imputation | KNN-импутация по лаговым признакам, где каждый пропуск описывается историческим окном значений.                                                                                                                               |
-| KNN_imputation | Классическая KNN-импутация на лаговых признаках без дополнительной сезонной логики.                                                                                                                                           |
-| MEAN_BETWEEN_imputation | Заполнение как среднее между ближайшим предыдущим и следующим наблюдением.                                                                                                                                                    |
-| MEAN_imputation | Заполнение глобальным средним значением ряда.                                                                                                                                                                                 |
-| POLYNOMIAL_imputation | Интерполяция полиномом 3-й степени для сглаженного восстановления нелинейных зависимостей.                                                                                                                                    |
-| QUADRATIC_imputation | Сплайновая интерполяция 2-го порядка.                                                                                                                                                                                         |
-| CUBIC_imputation | Сплайновая интерполяция 3-го порядка.                                                                                                                                                                                         |
-| SPLINE_imputation | Кубическая сплайн-интерполяция для гладкого восстановления ряда.                                                                                                                                                              |
-| LINEAR_imputation | Линейная интерполяция между известными точками.                                                                                                                                                                               |
-| LAST_imputation | Forward fill: заполнение последним известным значением.                                                                                                                                                                       |
-| MEDIAN_imputation | Заполнение медианой по всему ряду.                                                                                                                                                                                            |
-| SMEAN_imputation | Сезонное заполнение средним значением по месяцу наблюдения.                                                                                                                                                                   |
-| LINTER_imputation | Локальное сглаживание через скользящее среднее с последующим добиванием пропусков forward/backward fill.                                                                                                                      |
-| CSBI_imputation | Восстановление сезонных блоков через перенос годовых паттернов; при провале используется глобальное среднее.                                                                                                                  |
-| AIM_imputation | Ансамбль методов: оценивает разные импутации на искусственно созданных пропусках и выбирает лучший метод для каждого класса пропусков.                                                                                        |
+| PFBGB_imputation | A hybrid time series imputation method based on preliminary missing value filling using SKNN and subsequent reconstruction using the XGBoost model with bidirectional lag features. |
+| PFBRF_imputation | A hybrid time series imputation method based on preliminary missing value filling using SKNN and subsequent reconstruction using the Random Forest model with bidirectional lag features. |
+| XGB_imputation | Simple autoregression with a single lag (t-1) using XGBoost without complex windows and without feature missing value reconstruction. |
+| RF_imputation | Same as XGB_imputation, but using RandomForest instead of XGBoost. |
+| HDIRT_imputation | Reconstruction using a local linear model based on the nearest past and future values; linear interpolation is used when data is unavailable. |
+| LR_imputation | Linear regression over the time axis: trend approximation of the series and missing value filling based on this trend. |
+| SKNN_imputation | KNN imputation using lag features, where each missing value is represented by a historical window of values. |
+| KNN_imputation | Classical KNN imputation using lag features without additional seasonal logic. |
+| MEAN_BETWEEN_imputation | Filling using the average value between the nearest previous and subsequent observations. |
+| MEAN_imputation | Filling using the global mean value of the series. |
+| POLYNOMIAL_imputation | Third-degree polynomial interpolation for smooth reconstruction of nonlinear dependencies. |
+| QUADRATIC_imputation | Second-order spline interpolation. |
+| CUBIC_imputation | Third-order spline interpolation. |
+| SPLINE_imputation | Cubic spline interpolation for smooth series reconstruction. |
+| LINEAR_imputation | Linear interpolation between known points. |
+| LAST_imputation | Forward fill: filling with the last known value. |
+| MEDIAN_imputation | Filling with the median value of the entire series. |
+| SMEAN_imputation | Seasonal filling using the average value for the corresponding month of observation. |
+| LINTER_imputation | Local smoothing using a moving average followed by forward/backward fill for remaining missing values. |
+| CSBI_imputation | Seasonal block reconstruction by transferring annual patterns; global mean is used when reconstruction fails. |
+| AIM_imputation | Ensemble of methods: evaluates different imputations on artificially generated missing values and selects the best method for each missing value class. |
 
-Эксперименты проводились при четырёх уровнях пропусков: **10%**, **30%**, **50%** и **70%**.
+The experiments were conducted at four missing value levels: **10%**, **30%**, **50%**, and **70%**.
 
 <p align="justify">
 </p>
 
 
 <p align="justify">
-Процедура проведения одного эксперимента состояла из следующих этапов.
+The procedure for conducting a single experiment consisted of the following stages.
 </p>
 
 <p align="justify">
-<b>Шаг 1.</b> Определялось количество удаляемых значений как произведение общего числа наблюдений временного ряда на заданный процент пропусков.
+<b>Step 1.</b> The number of removed values was determined as the product of the total number of time series observations and the specified missing value percentage.
 </p>
 
 <p align="justify">
-<b>Шаг 2.</b> Генерировался набор случайных длин непрерывных интервалов пропусков, сумма которых была равна количеству удаляемых значений. Такой способ формирования обеспечивал наличие как краткосрочных, так и долгосрочных разрывов.
+<b>Step 2.</b> A set of random lengths of continuous missing intervals was generated, the sum of which was equal to the number of removed values. This approach ensured the presence of both short-term and long-term gaps.
 </p>
 
 <p align="justify">
-<b>Шаг 3.</b> Сформированные интервалы случайным образом размещались на временной шкале без пересечения друг с другом.
+<b>Step 3.</b> The generated intervals were randomly placed on the time axis without overlapping each other.
 </p>
 
 <p align="justify">
-<b>Шаг 4.</b> Значения, принадлежащие выбранным интервалам, удалялись из временного ряда. Пример формирования 10% пропусков на датасете Elista (эксперимент 0) представлен на рисунке&nbsp;1.
+<b>Step 4.</b> The values belonging to the selected intervals were removed from the time series. An example of generating 10% missing values for the Elista dataset (experiment 0) is shown in Figure&nbsp;1.
 </p>
 
 
 <p align="center">
-  <img src="./images/russia_elista_gap_10_experiment_0_ru.png" width="90%" alt="Рис. 1">
+  <img src="./images/russia_elista_gap_10_experiment_0_ru.png" width="90%" alt="Fig. 1">
 </p>
 
 <p align="center">
-  <b>Рис. 1.</b> Пример формирования пропусков во временном ряде<br>
+  <b>Fig. 1.</b> An example of generating gaps in a time series<br>
   <b>Fig. 1.</b> An example of creating gaps in a time series
 </p>
 
 <p align="justify">
-<b>Шаг 5.</b> Полученный ряд с пропусками восстанавливался всеми рассматриваемыми методами. Пример результата восстановления пропусков для датасета Elista при уровне 10% (эксперимент 0) с использованием методов AIM и PFBGB приведен на рисунках&nbsp;2 и 3 соответственно.
+<b>Step 5.</b> The obtained incomplete series was reconstructed using all considered methods. An example of missing value reconstruction results for the Elista dataset at a 10% missing level (experiment 0) using the AIM and PFBGB methods is presented in Figures&nbsp;2 and 3, respectively.
 </p>
 
 <p align="center">
-  <img src="./images/russia_elista_method_AIM_distribution_error_10_experiment_0_ru.png" width="90%" alt="Рис. 2">
+  <img src="./images/russia_elista_method_AIM_distribution_error_10_experiment_0_ru.png" width="90%" alt="Fig. 2">
 </p>
 
 <p align="center">
-  <b>Рис. 2.</b> Пример распределения реальных и заполненных данных методом AIM.<br>
+  <b>Fig. 2.</b> An example of the distribution of real and imputed data using the AIM method.<br>
   <b>Fig. 2.</b> An example of the distribution of real and completed data using the AIM method.
 </p>
 
 <p align="center">
-  <img src="./images/russia_elista_method_PFBGB_distribution_error_10_experiment_0_ru.png" width="90%" alt="Рис. 1">
+  <img src="./images/russia_elista_method_PFBGB_distribution_error_10_experiment_0_ru.png" width="90%" alt="Fig. 3">
 </p>
 
 <p align="center">
-  <b>Рис. 3.</b> Пример распределения реальных и заполненных данных методом PFBGB..<br>
+  <b>Fig. 3.</b> An example of the distribution of real and imputed data using the PFBGB method.<br>
   <b>Fig. 3.</b> An example of the distribution of real and completed data using the PFBGB method.
 </p>
 
 
 <p align="justify">
-<b>Шаг 6.</b> Для восстановленного ряда рассчитывались показатели качества заполнения, после чего результаты сохранялись для последующего анализа. Итоговые значения метрик вычислялись как медианные по результатам всех проведенных экспериментов и представлены в таблицах&nbsp;1–3 и на рисунках&nbsp;4–7.
+<b>Step 6.</b> Quality metrics of the imputation were calculated for the reconstructed series, after which the results were saved for further analysis. The final metric values were calculated as the median values across all conducted experiments and are presented in Tables&nbsp;1–3 and Figures&nbsp;4–7.
 </p>
 
 
 
-Итоговые значения метрик вычислялись как медианное по результатам всех проведенных экспериментов и представлены в таблицах 1–3 и на рисунках 4-7.
+The final metric values were calculated as the median values across all conducted experiments and are presented in Tables 1–3 and Figures 4–7.
 
 
 
 <p align="right">
-Таблица 1. Результаты оценки методов заполнения для датасета «» типа энергетика.<br>
+Table 1. Evaluation results of imputation methods for the "" dataset of the energy type.<br>
 Table 1. The results of the evaluation of filling methods for dataset "" type of energy
 </p>
 
 
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Fig. 4">
 </p>
 
 <p align="center">
-  <b>Рис. 4.</b> Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных.<br>
-  <b>Fig. 4.</b>  Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset.
+  <b>Fig. 4.</b> Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset.<br>
+  <b>Fig. 4.</b> Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset.
 </p>
 
 
 <p align="right">
-Таблица 2. Результаты оценки методов заполнения для датасета «Istanbul Trafic Index» типа трафик.<br>
+Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Index" traffic dataset.<br>
 Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Index" traffic dataset.
 </p>
 
-| Метод        | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
+
+| Method       | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
 |--------------|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| ✅ PFBGB     | 0.078 | 15.118 | 0.104 | 0.095 | 21.642 | 0.128 | 0.100 | 22.934 | 0.137 | 0.108 | 25.417 | 0.148 |
+| ✅ PFBGB      | 0.078 | 15.118 | 0.104 | 0.095 | 21.642 | 0.128 | 0.100 | 22.934 | 0.137 | 0.108 | 25.417 | 0.148 |
 | AIM          | 0.084 | 16.068 | 0.112 | 0.103 | 23.697 | 0.139 | 0.110 | 24.447 | 0.148 | 0.115 | 28.140 | 0.156 |
 | SKNN         | 0.090 | 16.914 | 0.118 | 0.104 | 22.965 | 0.141 | 0.108 | 24.244 | 0.148 | 0.115 | 26.059 | 0.157 |
 | HDIRT        | 0.131 | 28.658 | 0.170 | 0.141 | 33.307 | 0.186 | 0.141 | 33.243 | 0.187 | 0.142 | 35.371 | 0.189 |
@@ -429,22 +428,22 @@ Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Inde
 | QUADRATIC    | 0.123 | 27.567 | 0.154 | 0.131 | 31.043 | 0.167 | 0.132 | 31.418 | 0.168 | 0.133 | 33.872 | 0.172 |
 | POLYNOMIAL   | 0.402 | 75.957 | 0.494 | 1.070 | 187.134 | 1.326 | 1.767 | 315.260 | 2.234 | 2.678 | 481.254 | 3.310 |
 
+
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_article_image_ru.png" width="90%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_article_image_ru.png" width="90%" alt="Fig. 5">
 </p>
 
 <p align="center">
-  <b>Рис. 5.</b>  Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных «Istanbul Trafic Index»..<br>
-  <b>Fig. 5.</b>  Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset «Istanbul Trafic Index».
+  <b>Fig. 5.</b> Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the "Istanbul Traffic Index" dataset.
 </p>
 
 
 <p align="right">
-Таблица 3. Результаты оценки методов заполнения для датасета «Daily Climate» типа климат.<br>
 Table 3. Evaluation results of imputation methods for the "Daily Climate" climate dataset.
 </p>
 
-| Метод         | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
+
+| Method         | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
 |---------------|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | ✅  **PFBGB** | **0.048** | **9.062** | **0.058** | **0.058** | **11.587** | **0.072** | **0.062** | **12.806** | **0.077** | **0.069** | **14.970** | **0.085** |
 | AIM           | 0.049 | 9.300 | 0.061 | 0.059 | 12.144 | 0.074 | 0.066 | 13.818 | 0.082 | 0.074 | 15.665 | 0.093 |
@@ -470,65 +469,63 @@ Table 3. Evaluation results of imputation methods for the "Daily Climate" climat
 
 
 <p align="center">
-  <img src="./images/Daily_Climate_article_image_ru.png" width="90%" alt="Рис. 1">
+  <img src="./images/Daily_Climate_article_image_ru.png" width="90%" alt="Fig. 6">
 </p>
 
 <p align="center">
-  <b>Рис. 6.</b>Распределение значений ошибок восстановления пропущенных данных по метрикам MAE, MAPE и RMSE для набора данных «Daily Climate».<br>
-  <b>Fig. 6.</b>Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset «Daily Climate»
+  <b>Fig. 6.</b> Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the "Daily Climate" dataset.
 </p>
 
-
-<h2 align="center">Заключение</h2>
+<h2 align="center">Conclusion</h2>
 
 <p align="justify">
-В рамках исследования решена научная задача разработки метода восстановления пропущенных значений во временных рядах, обеспечивающего сохранение временной структуры данных и повышение точности импутации в условиях неполноты, нестационарности и различной структуры пропусков.
-Научная новизна работы заключается в разработке метода PFBGB (Pre-Filled Bidirectional Gradient Boosting), основанного на совместном использовании предварительного заполнения пропусков, двунаправленного лагового представления и обучения модели градиентного бустинга на полностью наблюдаемых участках временного ряда. В отличие от традиционных подходов, использующих ограниченный исторический контекст или требующих удаления неполных наблюдений, предложенный метод позволяет формировать непрерывное пространство признаков с учетом зависимостей как до, так и после восстанавливаемого значения. Это обеспечивает более полное представление локальной динамики процесса и снижает влияние разрывов временного ряда на качество восстановления.
-Дополнительно разработан ансамблевый подход AIM (Ensemble Imputation Method), основанный на адаптивном выборе метода восстановления в зависимости от характеристик пропуска. Использование комбинации методов различной природы позволяет учитывать особенности коротких и длинных разрывов, а также повышает устойчивость восстановления на временных рядах с различными закономерностями.
-Экспериментальная апробация выполнена на реальных наборах данных из трех предметных областей: энергетики, транспортного трафика и климатических наблюдений. Для оценки устойчивости и воспроизводимости результатов проведено 100 независимых экспериментов с различными расположениями, длинами и структурами пропущенных участков при уровнях отсутствующих данных от 10 % до 70 %. Результаты показали, что методы PFBGB и AIM обеспечивают наилучшее качество восстановления среди рассмотренных алгоритмов на всех исследуемых типах временных рядов.
-Предложенные методы обеспечили снижение ошибки восстановления в среднем на 10 % по метрике MAPE относительно базового подхода на основе градиентного бустинга и превзошли лучшие альтернативные методы, использующие исторические и сезонные зависимости, примерно на 1 %. Полученные результаты подтверждают эффективность использования двунаправленного временного контекста и адаптивной стратегии выбора алгоритма восстановления для повышения точности импутации пропусков.
-Практическая значимость работы заключается в возможности применения предложенных методов в системах мониторинга и анализа временных данных энергетической инфраструктуры, транспортных систем, климатических наблюдений и других прикладных областях. Разработанные подходы могут использоваться как самостоятельный этап предварительной обработки данных для повышения надежности последующего прогнозирования и принятия решений на основе временных рядов.
+Within the framework of this study, the scientific problem of developing a method for missing value imputation in time series was solved, ensuring the preservation of the temporal structure of data and improving imputation accuracy under conditions of incompleteness, non-stationarity, and various missing value patterns.
+The scientific novelty of the work lies in the development of the PFBGB (Pre-Filled Bidirectional Gradient Boosting) method, based on the combined use of preliminary missing value filling, bidirectional lag representation, and training a gradient boosting model on fully observed segments of the time series. Unlike traditional approaches that use limited historical context or require the removal of incomplete observations, the proposed method enables the formation of a continuous feature space considering dependencies both before and after the reconstructed value. This provides a more complete representation of local process dynamics and reduces the impact of time series gaps on reconstruction quality.
+Additionally, the AIM (Ensemble Imputation Method) approach was developed, based on adaptive selection of the reconstruction method depending on missing value characteristics. The use of a combination of methods with different properties allows the approach to account for the specifics of short and long gaps and improves reconstruction robustness for time series with different patterns.
+Experimental evaluation was performed on real-world datasets from three application domains: energy, transport traffic, and climate observations. To assess the robustness and reproducibility of the results, 100 independent experiments were conducted with different locations, lengths, and structures of missing segments at missing data levels ranging from 10% to 70%. The results demonstrated that the PFBGB and AIM methods provide the highest reconstruction quality among the considered algorithms for all investigated types of time series.
+The proposed methods reduced reconstruction error by an average of 10% according to the MAPE metric compared to the baseline gradient boosting approach and outperformed the best alternative methods using historical and seasonal dependencies by approximately 1%. The obtained results confirm the effectiveness of using bidirectional temporal context and adaptive algorithm selection strategies to improve missing value imputation accuracy.
+The practical significance of the work lies in the possibility of applying the proposed methods in monitoring and analysis systems for time-dependent data in energy infrastructure, transport systems, climate observations, and other applied domains. The developed approaches can be used as an independent data preprocessing stage to improve the reliability of subsequent forecasting and decision-making based on time series.
 </p>
 
-<h2 align="center">Список литературы</h2>
+<h2 align="center">References</h2>
 <ol align="justify">
-  <li>Palchevsky E. V., Antonov V. V., Kromina L. E., Rodionova L. E., Fakhrunina A. R. Intelligent forecasting of electricity consumption in managing energy enterprises in order to carry out energy-saving measures // Mechatronics, Automation, Control. 2023. Т. 24. № 6. С. 307–316. DOI: 10.17587/mau.24.307-316.</li>
+  <li>Palchevsky E. V., Antonov V. V., Kromina L. E., Rodionova L. E., Fakhrunina A. R. Intelligent forecasting of electricity consumption in managing energy enterprises in order to carry out energy-saving measures // Mechatronics, Automation, Control. 2023. Vol. 24. No. 6. P. 307–316. DOI: 10.17587/mau.24.307-316.</li>
 
-  <li>Гулай А. В., Зайцев В. М. Цифровой контроль тенденций изменения сенсорных параметров в интеллектуальных системах // Мехатроника, автоматизация, управление. 2018. Т. 19. № 7. С. 442–450. DOI: 10.17587/mau.19.442-450.</li>
+  <li>Gulay A. V., Zaitsev V. M. Digital control of trends in changes of sensor parameters in intelligent systems // Mechatronics, Automation, Control. 2018. Vol. 19. No. 7. P. 442–450. DOI: 10.17587/mau.19.442-450.</li>
 
-  <li>Васильев Д. А., Колоколов М. В., Иващенко В. А. Прогнозирование электропотребления в АСУ энергетикой промышленных предприятий // Мехатроника, автоматизация, управление. 2010. № 8. С. 58–60.</li>
+  <li>Vasiliev D. A., Kolokolov M. V., Ivashchenko V. A. Electricity consumption forecasting in automated energy management systems of industrial enterprises // Mechatronics, Automation, Control. 2010. No. 8. P. 58–60.</li>
 
-  <li>Игнатов Н. А. Реализация концепции энергоэффективности в автоматизированных системах управления на основе прогнозирования параметров рынка электрической энергии // Мехатроника, автоматизация, управление. 2011. № 6. С. 48–55.</li>
+  <li>Ignatov N. A. Implementation of the energy efficiency concept in automated control systems based on forecasting electricity market parameters // Mechatronics, Automation, Control. 2011. No. 6. P. 48–55.</li>
 
-  <li>Васильев Д. А. Гибридная модель прогнозирования электрических нагрузок промышленных предприятий // Мехатроника, автоматизация, управление. 2011. № 9. С. 37–40.</li>
+  <li>Vasiliev D. A. Hybrid model for forecasting electrical loads of industrial enterprises // Mechatronics, Automation, Control. 2011. No. 9. P. 37–40.</li>
 
-  <li>Антонов В. В., Кромина Л. А., Родионова Л. Е., Фахруллина А. Р., Баймурзина Л. И., Пальчевский Е. В., Родионов Е. А. Концепция формирования интеллектуальных управляющих систем энергоснабжения городских сетей // Мехатроника, автоматизация, управление. 2023. Т. 24. № 4. С. 190–198. DOI: 10.17587/mau.24.190-198.</li>
+  <li>Antonov V. V., Kromina L. A., Rodionova L. E., Fakhrullina A. R., Baimurzina L. I., Palchevsky E. V., Rodionov E. A. Concept of forming intelligent control systems for urban power supply networks // Mechatronics, Automation, Control. 2023. Vol. 24. No. 4. P. 190–198. DOI: 10.17587/mau.24.190-198.</li>
 
-  <li>Tomasz Niedzielski. Improving Linear Interpolation of Missing Hydrological Data by Applying Integrated Autoregressive Models / Tomasz Niedzielski, Michał Halicki // Water Resources Management. 2023. Vol. 37. No. 14. P. 5707–5724. DOI: https://doi.org/10.1007/s11269-023-03625-7.</li>
+  <li>Niedzielski T., Halicki M. Improving Linear Interpolation of Missing Hydrological Data by Applying Integrated Autoregressive Models // Water Resources Management. 2023. Vol. 37. No. 14. P. 5707–5724. DOI: https://doi.org/10.1007/s11269-023-03625-7.</li>
 
-  <li>Chenhui Wang. Time Series Prediction Model of Landslide Displacement Using Mean-Based Low-Rank Autoregressive Tensor Completion / Chenhui Wang, Yijiu Zhao // Applied Sciences. 2023. Vol. 13. No. 8. P. 5214. DOI: https://doi.org/10.3390/app13085214.</li>
+  <li>Wang C., Zhao Y. Time Series Prediction Model of Landslide Displacement Using Mean-Based Low-Rank Autoregressive Tensor Completion // Applied Sciences. 2023. Vol. 13. No. 8. P. 5214. DOI: https://doi.org/10.3390/app13085214.</li>
 
-  <li>Ayaz Hussain. Analyzing the Effect of Error Estimation on Random Missing Data Patterns in Mid-Term Electrical Forecasting / Ayaz Hussain, Paolo Giangrande, Giuseppe Franchini, Lorenzo Fenili, Silvio Messi // Electronics. 2025. Vol. 14. No. 7. P. 1383. DOI: https://doi.org/10.3390/electronics14071383.</li>
+  <li>Hussain A., Giangrande P., Franchini G., Fenili L., Messi S. Analyzing the Effect of Error Estimation on Random Missing Data Patterns in Mid-Term Electrical Forecasting // Electronics. 2025. Vol. 14. No. 7. P. 1383. DOI: https://doi.org/10.3390/electronics14071383.</li>
 
-  <li>Lakmini Wijesekara. Mind the Large Gap: Novel Algorithm Using Seasonal Decomposition and Elastic Net Regression to Impute Large Intervals of Missing Data in Air Quality Data / Lakmini Wijesekara, Liwan Liyanage // Atmosphere. 2023. Vol. 14. No. 2. P. 355. DOI: https://doi.org/10.3390/atmos14020355.</li>
+  <li>Wijesekara L., Liyanage L. Mind the Large Gap: Novel Algorithm Using Seasonal Decomposition and Elastic Net Regression to Impute Large Intervals of Missing Data in Air Quality Data // Atmosphere. 2023. Vol. 14. No. 2. P. 355. DOI: https://doi.org/10.3390/atmos14020355.</li>
 
-  <li>Guilherme Pumi. A Novel Multiple Imputation Approach For Parameter Estimation in Observation-Driven Time Series Models With Missing Data / Guilherme Pumi, Taiane Schaedler Prass, Douglas Krauthein Verdum // arXiv (Cornell University). DOI: https://doi.org/10.48550/arxiv.2601.01259.</li>
+  <li>Pumi G., Prass T. S., Verdum D. K. A Novel Multiple Imputation Approach For Parameter Estimation in Observation-Driven Time Series Models With Missing Data // arXiv (Cornell University). DOI: https://doi.org/10.48550/arxiv.2601.01259.</li>
 
-  <li>Yichen Zhu. Networked Time-series Prediction with Incomplete Data via Generative Adversarial Network / Yichen Zhu, Bo Jiang, Haiming Jin, Mengtian Zhang, Feng Gao, Jianqiang Huang, Tao Lin, Xinbing Wang // ACM Transactions on Knowledge Discovery from Data. 2024. Vol. 18. No. 5. P. 1–25. DOI: https://doi.org/10.1145/3643822.</li>
+  <li>Zhu Y., Jiang B., Jin H., Zhang M., Gao F., Huang J., Lin T., Wang X. Networked Time-series Prediction with Incomplete Data via Generative Adversarial Network // ACM Transactions on Knowledge Discovery from Data. 2024. Vol. 18. No. 5. P. 1–25. DOI: https://doi.org/10.1145/3643822.</li>
 
-  <li>Suyel Namasudra. Enhanced Neural Network-Based Univariate Time-Series Forecasting Model for Big Data / Suyel Namasudra, S. Dhamodharavadhani, R. Rathipriya, Rubén González Crespo, Nageswara Rao Moparthi // Big Data. 2024. Vol. 12. No. 2. P. 83–99. DOI: https://doi.org/10.1089/big.2022.0155.</li>
+  <li>Namasudra S., Dhamodharavadhani S., Rathipriya R., González Crespo R., Moparthi N. R. Enhanced Neural Network-Based Univariate Time-Series Forecasting Model for Big Data // Big Data. 2024. Vol. 12. No. 2. P. 83–99. DOI: https://doi.org/10.1089/big.2022.0155.</li>
 
-  <li>Filip Arnaut. Improving Air Quality Data Reliability through Bi-Directional Univariate Imputation with the Random Forest Algorithm / Filip Arnaut, Vladimir Đurđević, Aleksandra Kolarski, Vladimir A. Srécković, Sreten Jevremović // Sustainability. 2024. Vol. 16. No. 17. P. 7629. DOI: https://doi.org/10.3390/su16177629.</li>
+  <li>Arnaut F., Đurđević V., Kolarski A., Srécković V. A., Jevremović S. Improving Air Quality Data Reliability through Bi-Directional Univariate Imputation with the Random Forest Algorithm // Sustainability. 2024. Vol. 16. No. 17. P. 7629. DOI: https://doi.org/10.3390/su16177629.</li>
 
-  <li>Caiyun Zhang. Impacts of Missing Buoy Data on LSTM-Based Coastal Chlorophyll-a Forecasting / Caiyun Zhang, Wenxiang Ding, Liyu Zhang // Water. 2024. Vol. 16. No. 21. P. 3046. DOI: https://doi.org/10.3390/w16213046.</li>
+  <li>Zhang C., Ding W., Zhang L. Impacts of Missing Buoy Data on LSTM-Based Coastal Chlorophyll-a Forecasting // Water. 2024. Vol. 16. No. 21. P. 3046. DOI: https://doi.org/10.3390/w16213046.</li>
 
-  <li>Jiabao Li. Uncertainty-Aware Self-Attention Model for Time Series Prediction with Missing Values / Jiabao Li, Chengjun Wang, Wenhang Su, Dongdong Ye, Ziyang Wang // Fractal and Fractional. 2025. Vol. 9. No. 3. P. 181. DOI: https://doi.org/10.3390/fractalfract9030181.</li>
+  <li>Li J., Wang C., Su W., Ye D., Wang Z. Uncertainty-Aware Self-Attention Model for Time Series Prediction with Missing Values // Fractal and Fractional. 2025. Vol. 9. No. 3. P. 181. DOI: https://doi.org/10.3390/fractalfract9030181.</li>
 
-  <li>Keyang Zhong. Attention-based generative adversarial networks for aquaponics environment time series data imputation / Keyang Zhong, Xueqian Sun, Gedi Liu, Yifeng Jiang, Yi Ouyang, Yang Wang // Information Processing in Agriculture. 2024. Vol. 11. No. 4. P. 542–551. DOI: https://doi.org/10.1016/j.inpa.2023.10.001.</li>
+  <li>Zhong K., Sun X., Liu G., Jiang Y., Ouyang Y., Wang Y. Attention-based generative adversarial networks for aquaponics environment time series data imputation // Information Processing in Agriculture. 2024. Vol. 11. No. 4. P. 542–551. DOI: https://doi.org/10.1016/j.inpa.2023.10.001.</li>
 
-  <li>Sabera Talukder. TOTEM: TOkenized Time Series EMbeddings for General Time Series Analysis / Sabera Talukder, Yisong Yue, Georgia Gkioxari // arXiv (Cornell University). DOI: https://doi.org/10.48550/arxiv.2402.16412.</li>
+  <li>Talukder S., Yue Y., Gkioxari G. TOTEM: TOkenized Time Series EMbeddings for General Time Series Analysis // arXiv (Cornell University). DOI: https://doi.org/10.48550/arxiv.2402.16412.</li>
 
-  <li>Quoc‐Thang Phan. An innovative hybrid model combining informer and K‐Means clustering methods for invisible multisite solar power estimation / Quoc‐Thang Phan, Yuan‐Kang Wu, Quốc Dũng Phan // IET Renewable Power Generation. 2024. Vol. 18. No. S1. P. 4318–4333. DOI: https://doi.org/10.1049/rpg2.13176.</li>
+  <li>Phan Q.-T., Wu Y.-K., Phan Q. D. An innovative hybrid model combining informer and K-Means clustering methods for invisible multisite solar power estimation // IET Renewable Power Generation. 2024. Vol. 18. No. S1. P. 4318–4333. DOI: https://doi.org/10.1049/rpg2.13176.</li>
 
-  <li>Dmitrii Vasenin. Incorporating Seasonal Features in Data Imputation Methods for Power Demand Time Series / Dmitrii Vasenin, Marco Pasetti, Davide Astolfi, Nikita Savvin, Stefano Rinaldi, Alberto Berizzi // IEEE Access. 2024. Vol. 12. P. 103520–103536. DOI: https://doi.org/10.1109/ACCESS.2024.3434652.</li>
+  <li>Vasenin D., Pasetti M., Astolfi D., Savvin N., Rinaldi S., Berizzi A. Incorporating Seasonal Features in Data Imputation Methods for Power Demand Time Series // IEEE Access. 2024. Vol. 12. P. 103520–103536. DOI: https://doi.org/10.1109/ACCESS.2024.3434652.</li>
 </ol>
