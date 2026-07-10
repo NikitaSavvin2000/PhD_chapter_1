@@ -352,7 +352,6 @@ The procedure for conducting a single experiment consisted of the following stag
 
 <p align="center">
   <b>Fig. 1.</b> An example of generating gaps in a time series<br>
-  <b>Fig. 1.</b> An example of creating gaps in a time series
 </p>
 
 <p align="justify">
@@ -365,7 +364,6 @@ The procedure for conducting a single experiment consisted of the following stag
 
 <p align="center">
   <b>Fig. 2.</b> An example of the distribution of real and imputed data using the AIM method.<br>
-  <b>Fig. 2.</b> An example of the distribution of real and completed data using the AIM method.
 </p>
 
 <p align="center">
@@ -374,7 +372,6 @@ The procedure for conducting a single experiment consisted of the following stag
 
 <p align="center">
   <b>Fig. 3.</b> An example of the distribution of real and imputed data using the PFBGB method.<br>
-  <b>Fig. 3.</b> An example of the distribution of real and completed data using the PFBGB method.
 </p>
 
 
@@ -383,14 +380,12 @@ The procedure for conducting a single experiment consisted of the following stag
 </p>
 
 
-
 The final metric values were calculated as the median values across all conducted experiments and are presented in Tables 1–3 and Figures 4–7.
 
 
 
 <p align="right">
 Table 1. Evaluation results of imputation methods for the "" dataset of the energy type.<br>
-Table 1. The results of the evaluation of filling methods for dataset "" type of energy
 </p>
 
 
@@ -401,13 +396,11 @@ Table 1. The results of the evaluation of filling methods for dataset "" type of
 
 <p align="center">
   <b>Fig. 4.</b> Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset.<br>
-  <b>Fig. 4.</b> Distribution of missing data imputation errors measured by MAE, MAPE, and RMSE metrics for the dataset.
 </p>
 
 
 <p align="right">
 Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Index" traffic dataset.<br>
-Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Index" traffic dataset.
 </p>
 
 
