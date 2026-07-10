@@ -392,8 +392,11 @@ $$
 Итоговые значения метрик вычислялись как медианное по результатам всех проведенных экспериментов и представлены в таблицах 1–3 и на рисунках 4-7.
 
 
-Таблица 1. Результаты оценки методов заполнения для датасета «» типа энергетика.
+
+<p align="right">
+Таблица 1. Результаты оценки методов заполнения для датасета «» типа энергетика.<br>
 Table 1. The results of the evaluation of filling methods for dataset "" type of energy
+</p>
 
 
 
@@ -407,8 +410,10 @@ Table 1. The results of the evaluation of filling methods for dataset "" type of
 </p>
 
 
-Таблица 2. Результаты оценки методов заполнения для датасета «Istanbul Trafic Index» типа трафик.
+<p align="right">
+Таблица 2. Результаты оценки методов заполнения для датасета «Istanbul Trafic Index» типа трафик.<br>
 Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Index" traffic dataset.
+</p>
 
 | Метод | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -444,8 +449,10 @@ Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Inde
 </p>
 
 
-Таблица 3. Результаты оценки методов заполнения для датасета «Daily Climate» типа климат.
+<p align="right">
+Таблица 3. Результаты оценки методов заполнения для датасета «Daily Climate» типа климат.<br>
 Table 3. Evaluation results of imputation methods for the "Daily Climate" climate dataset.
+</p>
 
 | Метод | 10% MAE | 10% MAPE | 10% RMSE | 30% MAE | 30% MAPE | 30% RMSE | 50% MAE | 50% MAPE | 50% RMSE | 70% MAE | 70% MAPE | 70% RMSE |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
