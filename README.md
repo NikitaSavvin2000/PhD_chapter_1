@@ -320,7 +320,6 @@ $$
 </p>
 
 
-
 <p align="justify">
 Процедура проведения одного эксперимента состояла из следующих этапов.
 </p>
@@ -343,7 +342,7 @@ $$
 
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
+  <img src="./images/russia_elista_gap_10_experiment_0_ru.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -356,7 +355,7 @@ $$
 </p>
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
+  <img src="./images/russia_elista_method_AIM_distribution_error_10_experiment_0_ru.png" width="90%" alt="Рис. 2">
 </p>
 
 <p align="center">
@@ -365,7 +364,7 @@ $$
 </p>
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
+  <img src="./images/russia_elista_method_PFBGB_distribution_error_10_experiment_0_ru.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -431,7 +430,7 @@ Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Inde
 | POLYNOMIAL   | 0.402 | 75.957 | 0.494 | 1.070 | 187.134 | 1.326 | 1.767 | 315.260 | 2.234 | 2.678 | 481.254 | 3.310 |
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
+  <img src="./images/Istanbul_Traffic_Index_article_image_ru.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">
@@ -471,7 +470,7 @@ Table 3. Evaluation results of imputation methods for the "Daily Climate" climat
 
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_gap_50_experiment_0_en.png" width="90%" alt="Рис. 1">
+  <img src="./images/Daily_Climate_article_image_ru.png" width="90%" alt="Рис. 1">
 </p>
 
 <p align="center">

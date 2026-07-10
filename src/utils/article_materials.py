@@ -80,7 +80,7 @@ for dataset in datasets_to_article:
 
     dataset_summary_table = dataset_summary_table.round(3)
 
-    path_to_save_table = os.path.join(path_to_dataset, "article_table.csv")
+    path_to_save_table = os.path.join(path_to_dataset, f"{dataset}_article_table.csv")
     dataset_summary_table.to_csv(path_to_save_table)
 
 
@@ -328,7 +328,7 @@ def create_plot(lang, dataset):
 
     path_to_save = os.path.join(
         path_to_dataset,
-        f"article_image_{suffix}.png"
+        f"{dataset}_article_image_{suffix}.png"
     )
 
     plt.savefig(
