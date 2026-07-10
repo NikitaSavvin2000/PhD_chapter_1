@@ -51,17 +51,15 @@ export/
 - Все результаты автоматически экспортируются в директорию `export/`.
 
 
-# PFBGB (Pre-Filled Bidirectional Gradient Boosting): подход к восстановлению пропусков во временных рядах с бинаправленным обучением на предзаполненных данных входного вектора
-
+<h1 align="justify">
+PFBGB (Pre-Filled Bidirectional Gradient Boosting): подход к восстановлению пропусков во временных рядах с бинаправленным обучением на предзаполненных данных входного вектора
+</h1>
 
 <div align="center">
 
-<h3>Автор</h3>
-
 <p>
-<b>Саввин Никита Владимирович</b><br>
-✉️ <a href="mailto:savvin.nikita.work@yandex.ru">savvin.nikita.work@yandex.ru</a><br>
-🔗 <a href="https://orcid.org/0009-0009-9163-6234">ORCID: 0009-0009-9163-6234</a>
+<b>Никита Владимирович Саввин</b><br>
+Email: <a href="mailto:savvin.nikita.work@yandex.ru">savvin.nikita.work@yandex.ru</a> &nbsp;&nbsp; ORCID: <a href="https://orcid.org/0009-0009-9163-6234">0009-0009-9163-6234</a>
 </p>
 
 </div>
