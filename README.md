@@ -349,7 +349,7 @@ The procedure for conducting a single experiment consisted of the following stag
 </p>
 
 <p align="justify">
-<b>Step 5.</b> The obtained incomplete series was reconstructed using all considered methods. An example of missing value reconstruction results for the Elista dataset at a 10% missing level (experiment 0) using the AIM and PFBGB methods is presented in Figures&nbsp;2 and 3, respectively.
+<b>Step 5.</b> The obtained incomplete series was reconstructed using all considered methods. An example of missing value reconstruction results for the Istanbul_Traffic_Index dataset at a 30% missing level (experiment 0) using the AIM and PFBGB methods is presented in Figures&nbsp;2 and 3, respectively.
 </p>
 
 <p align="center">
