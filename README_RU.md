@@ -27,6 +27,13 @@ source .venv/bin/activate
 pdm run src/experiments/main.py
 ```
 
+### 4. Запуск реального заполнения
+
+```bash
+pdm pdm run src/filling/main.py
+```
+
+
 ## Результаты
 
 Результаты выполнения экспериментов автоматически сохраняются в директорию:

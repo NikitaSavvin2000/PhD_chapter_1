@@ -27,6 +27,13 @@ source .venv/bin/activate
 pdm run src/experiments/main.py
 ```
 
+### 4. Running real filling the gaps
+
+```bash
+pdm pdm run src/filling/main.py
+```
+
+
 ## Results
 
 The experiment results are automatically saved to the directory:
