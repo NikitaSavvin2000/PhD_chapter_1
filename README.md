@@ -335,12 +335,12 @@ The procedure for conducting a single experiment consisted of the following stag
 </p>
 
 <p align="justify">
-<b>Step 4.</b> The values belonging to the selected intervals were removed from the time series. An example of generating 10% missing values for the Elista dataset (experiment 0) is shown in Figure&nbsp;1.
+<b>Step 4.</b> The values belonging to the selected intervals were removed from the time series. An example of generating 30% missing values for the Istanbul_Traffic_Index dataset (experiment 0) is shown in Figure&nbsp;1.
 </p>
 
 
 <p align="center">
-  <img src="./images/russia_elista_gap_10_experiment_0_ru.png" width="90%" alt="Fig. 1">
+  <img src="./images/Istanbul_Traffic_Index_gap_30_experiment_0_en.png" width="90%" alt="Fig. 1">
 </p>
 
 <p align="center">
@@ -353,7 +353,7 @@ The procedure for conducting a single experiment consisted of the following stag
 </p>
 
 <p align="center">
-  <img src="./images/russia_elista_method_AIM_distribution_error_10_experiment_0_ru.png" width="90%" alt="Fig. 2">
+  <img src="./images/Istanbul_Traffic_Index_method_AIM_distribution_error_30_experiment_0_en.png" width="90%" alt="Fig. 2">
 </p>
 
 <p align="center">
@@ -362,7 +362,7 @@ The procedure for conducting a single experiment consisted of the following stag
 </p>
 
 <p align="center">
-  <img src="./images/russia_elista_method_PFBGB_distribution_error_10_experiment_0_ru.png" width="90%" alt="Fig. 3">
+  <img src="./images/Istanbul_Traffic_Index_method_PFBGB_distribution_error_30_experiment_0_en.png" width="90%" alt="Fig. 3">
 </p>
 
 <p align="center">
@@ -430,7 +430,7 @@ Table 2. Evaluation results of imputation methods for the "Istanbul Traffic Inde
 
 
 <p align="center">
-  <img src="./images/Istanbul_Traffic_Index_article_image_ru.png" width="90%" alt="Fig. 5">
+  <img src="./images/Istanbul_Traffic_Index_article_image_en.png" width="90%" alt="Fig. 5">
 </p>
 
 <p align="center">
@@ -469,7 +469,7 @@ Table 3. Evaluation results of imputation methods for the "Daily Climate" climat
 
 
 <p align="center">
-  <img src="./images/Daily_Climate_article_image_ru.png" width="90%" alt="Fig. 6">
+  <img src="./images/Daily_Climate_article_image_en.png" width="90%" alt="Fig. 6">
 </p>
 
 <p align="center">
